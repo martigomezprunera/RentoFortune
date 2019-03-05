@@ -24,6 +24,32 @@ std::list<sf::TcpSocket*> clients;
 //Creamos el selector
 sf::SocketSelector selector;
 
+//ENUM (ORDENES DEL CLIENTE)
+enum Ordenes
+{
+	StartGame
+};
+
+//OVERCHARGED FUNCTIONS (PLAYER INFO)
+sf::Packet& operator <<(sf::Packet& packet, const PlayerInfo& playerInfo)
+{
+	return packet << playerInfo.name << playerInfo.position.x << playerInfo.position.y << playerInfo.money;
+}
+sf::Packet& operator >>(sf::Packet& packet, PlayerInfo& playerInfo)
+{
+	return packet >> playerInfo.name >> playerInfo.position.x >> playerInfo.position.y >> playerInfo.money;
+}
+
+//OVERCHARGED FUNCTIONS (ENUM CLASS)
+sf::Packet& operator <<(sf::Packet& packet, const Ordenes& orders)
+{
+	return packet << orders;
+}
+sf::Packet& operator >>(sf::Packet& packet, Ordenes& orders)
+{
+	return packet >> orders;
+}
+
 //TCPSocketSelector
 void ControlServer()
 {
@@ -72,12 +98,25 @@ void ControlServer()
 					{
 						// The client has sent some data, we can receive it
 						sf::Packet packReceive;
-						std::string aux;
+						int order;
 						status = client.receive(packReceive);
 						if (status == sf::Socket::Done)
 						{
-							packReceive >> aux;
-							std::cout << "He recibido " << aux << " del puerto " << client.getRemotePort() << std::endl;
+							packReceive >> order;
+							std::cout << "He recibido la orden" << order << " del puerto " << client.getRemotePort() << std::endl;
+
+							switch (order)
+							{
+							case 0:
+								
+								break;
+							case 1:
+								break;
+							case 2:
+								break;
+							case 3:
+								break;
+							}
 						}
 						else if (status == sf::Socket::Disconnected)
 						{
@@ -95,7 +134,6 @@ void ControlServer()
 	}
 }
 
-
 //Peer-To-Peer
 
 
@@ -107,16 +145,123 @@ int main()
 	sf::TcpSocket::Status status;
 
 	//CONEXION CLIENTE-SERVIDOR
-	std::thread t(&ControlServer);
-	t.detach();
+	/*std::thread t(&ControlServer);
+	t.detach();*/
+
+	//VECTOR DE PLAYES
+	std::vector<PlayerInfo> players;
 
 	//VARIABLES JUEGO
 	PlayerInfo playerInfo;
+	int NumJugadores = 0;
 
 	//BUCLE DE JUEGO
 	while (running)
 	{
+		status = listener.listen(PORT);
+		if (status != sf::Socket::Done)
+		{
+			std::cout << "Error al abrir listener\n";
+			exit(0);
+		}
+		//Añadimos el listener
+		selector.add(listener);
 
+		while (running)
+		{
+			// Make the selector wait for data on any socket
+			if (selector.wait())
+			{
+				// Test the listener
+				if (selector.isReady(listener))
+				{
+					// The listener is ready: there is a pending connection
+					sf::TcpSocket* client = new sf::TcpSocket;
+					if (listener.accept(*client) == sf::Socket::Done)
+					{
+						// Add the new client to the clients list
+						std::cout << "Llega el cliente con puerto: " << client->getRemotePort() << std::endl;
+						clients.push_back(client);
+						// Add the new client to the selector so that we will
+						// be notified when he sends something
+						selector.add(*client);
+					}
+					else
+					{
+						// Error, we won't get a new connection, delete the socket
+						std::cout << "Error al recoger conexión nueva\n";
+						delete client;
+					}
+				}
+				else
+				{
+					// The listener socket is not ready, test all other sockets (the clients)
+					for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
+					{
+						sf::TcpSocket& client = **it;
+						if (selector.isReady(client))
+						{
+							// The client has sent some data, we can receive it
+							sf::Packet packReceive;
+							sf::Packet packSend;
+							int order;
+							status = client.receive(packReceive);
+							if (status == sf::Socket::Done)
+							{
+								packReceive >> order;
+								std::cout << "He recibido la orden" << order << " del puerto " << client.getRemotePort() << std::endl;
+
+								switch (order)
+								{
+								case 0:
+									//CREACION DE JUGADOR
+									packReceive >> playerInfo.name;
+									packReceive >> playerInfo.position.x;
+									packReceive >> playerInfo.position.y;
+									packReceive >> playerInfo.money;
+									packReceive >> playerInfo.isYourTurn;
+
+									//AÑADIMOS JUGADOR AL VECTOR
+									mtx.lock();
+									players.push_back(playerInfo);
+									mtx.unlock();
+
+									//NUMERO DE JUGADORES EN PARTIDA
+									NumJugadores = players.size();
+
+									//COMPROBAMOS JUGADOR
+									/*for (int i = 0; i < players.size(); i++)
+									{
+										std::cout << players[i].name << std::endl;
+										std::cout << players[i].position.x << std::endl;
+										std::cout << players[i].position.y << std::endl;
+										std::cout << players[i].money << std::endl;
+										std::cout << players[i].isYourTurn << std::endl;
+									}*/
+
+									break;
+								case 1:
+									break;
+								case 2:
+									break;
+								case 3:
+									break;
+								}
+							}
+							else if (status == sf::Socket::Disconnected)
+							{
+								selector.remove(client);
+								std::cout << "Elimino el socket que se ha desconectado\n";
+							}
+							else
+							{
+								std::cout << "Error al recibir de " << client.getRemotePort() << std::endl;
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 	return 0;
 }
