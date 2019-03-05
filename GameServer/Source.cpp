@@ -43,11 +43,13 @@ sf::Packet& operator >>(sf::Packet& packet, PlayerInfo& playerInfo)
 //OVERCHARGED FUNCTIONS (ENUM CLASS)
 sf::Packet& operator <<(sf::Packet& packet, const Ordenes& orders)
 {
-	return packet << orders;
+	int option = static_cast<int>(orders);
+	return packet << option;
 }
 sf::Packet& operator >>(sf::Packet& packet, Ordenes& orders)
 {
-	return packet >> orders;
+	int option = static_cast<int>(orders);
+	return packet >> option;
 }
 
 //TCPSocketSelector
@@ -209,7 +211,7 @@ int main()
 							if (status == sf::Socket::Done)
 							{
 								packReceive >> order;
-								std::cout << "He recibido la orden" << order << " del puerto " << client.getRemotePort() << std::endl;
+								std::cout << "He recibido la orden " << order << " del puerto " << client.getRemotePort() << std::endl;
 
 								switch (order)
 								{
@@ -227,7 +229,14 @@ int main()
 									mtx.unlock();
 
 									//NUMERO DE JUGADORES EN PARTIDA
-									NumJugadores = players.size();
+									/*NumJugadores = players.size();
+									std::cout << NumJugadores << std::endl;
+									if (NumJugadores == 4)
+									{
+										packSend << Ordenes::StartGame;
+										packSend << NumJugadores;
+										client.send(packSend);
+									}*/
 
 									//COMPROBAMOS JUGADOR
 									/*for (int i = 0; i < players.size(); i++)
