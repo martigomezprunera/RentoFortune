@@ -15,6 +15,7 @@
 
 //VARIABLES GLOBALES
 bool running = true;
+bool startGame = false;
 sf::Socket::Status status;
 sf::Mutex mtx;
 
@@ -39,6 +40,7 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 		{
 		case 0:
 			std::cout << "Empezamos juego" << std::endl;
+			startGame = true;
 			break;
 		case 1:
 			break;
@@ -118,7 +120,7 @@ int main()
 	lobbyText.setPosition(500 - 140, 400 - 150);
 	lobbyText.setStyle(sf::Text::Bold);
 
-	//--- EDITTEXT TITLE ---//
+	//--- PUTTEXT TITLE ---//
 	sf::Text editTextTitle("Put your Alias", fontCourbd, 26);
 	editTextTitle.setFillColor(sf::Color(255, 255, 255));
 	editTextTitle.setPosition(500 - 120, 400 - 100);
@@ -148,6 +150,7 @@ int main()
 	window.draw(lobbyText);
 	window.draw(editTextTitle);
 	window.display();
+	window.clear();
 
 	//RECOGER ALIAS
 	std::cout << "What's your name: ";
@@ -163,7 +166,18 @@ int main()
 	sock.send(pack);
 
 	//ESPERANDO A QUE SE CONECTEN 4 JUGADORES
+	while (!startGame)
+	{
+		sf::Text waitingText("Waiting other players ... ", fontCourbd, 34);
+		waitingText.setFillColor(sf::Color(255, 255, 255));
+		waitingText.setPosition(500 - 200, 400 - 150);
+		waitingText.setStyle(sf::Text::Bold);
 
+		window.draw(waitingText);
+
+		window.display();
+		window.clear();
+	}
 
 	//BUCLE DE JUEGO
 	while (running)

@@ -228,16 +228,6 @@ int main()
 									players.push_back(playerInfo);
 									mtx.unlock();
 
-									//NUMERO DE JUGADORES EN PARTIDA
-									/*NumJugadores = players.size();
-									std::cout << NumJugadores << std::endl;
-									if (NumJugadores == 4)
-									{
-										packSend << Ordenes::StartGame;
-										packSend << NumJugadores;
-										client.send(packSend);
-									}*/
-
 									//COMPROBAMOS JUGADOR
 									/*for (int i = 0; i < players.size(); i++)
 									{
@@ -255,6 +245,19 @@ int main()
 									break;
 								case 3:
 									break;
+								}
+
+								//NUMERO DE JUGADORES EN PARTIDA			
+								for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
+								{
+									sf::TcpSocket& client = **it;
+									NumJugadores = players.size();
+									if (NumJugadores == 4)
+									{
+										packSend << Ordenes::StartGame;
+										packSend << NumJugadores;
+										client.send(packSend);
+									}
 								}
 							}
 							else if (status == sf::Socket::Disconnected)
