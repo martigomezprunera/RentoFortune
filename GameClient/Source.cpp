@@ -19,58 +19,97 @@ bool startGame = false;
 sf::Socket::Status status;
 sf::Mutex mtx;
 
+//VECTOR PLAYER
+std::vector<PlayerInfo> players;
+int VectorPlayersSize;
+
 //ENUM (ORDENES DEL CLIENTE)
 enum Ordenes
 {
 	CreatePlayer
 };
 
-//MENSAJES DEL SERVIDOR
-void RecepcionMensaje(sf::TcpSocket* sock)
-{
-	sf::Packet packReceive;
-	while (running)
-	{
-		sf::Packet packReceive;
-		int order;
-		sock->receive(packReceive);
-		packReceive >> order;
-
-		switch (order)
-		{
-		case 0:
-			std::cout << "Empezamos juego" << std::endl;
-			startGame = true;
-			break;
-		case 1:
-			break;
-		case 2:
-			break;
-		}
-	}
-}
-
 //OVERCHARGED FUNCTIONS (PLAYER INFO)
 sf::Packet& operator <<(sf::Packet& packet, const PlayerInfo& playerInfo)
 {
 	return packet << playerInfo.name << playerInfo.position.x << playerInfo.position.y << playerInfo.money << playerInfo.isYourTurn;
 }
-sf::Packet& operator >>(sf::Packet& packet, PlayerInfo& playerInfo)
-{
-	return packet >> playerInfo.name >> playerInfo.position.x >> playerInfo.position.y >> playerInfo.money >> playerInfo.isYourTurn;
-}
-
 //OVERCHARGED FUNCTIONS (ENUM CLASS)
 sf::Packet& operator <<(sf::Packet& packet, const Ordenes& orders)
 {
 	int option = static_cast<int>(orders);
 	return packet << option;
 }
-sf::Packet& operator >>(sf::Packet& packet, Ordenes& orders)
+
+//MENSAJES DEL SERVIDOR
+void RecepcionMensaje(sf::TcpSocket* sock)
 {
-	int option = static_cast<int>(orders);
-	return packet >> option;
+	sf::Packet packReceive;
+	int order;
+
+	//VARIABLES SIMPLES
+	PlayerInfo auxPlayer;
+	std::string auxName;
+	int auxPositionX;
+	int auxPositionY;
+	int auxMoney;
+	bool auxIsYourTurn;
+	//RECIBIMOS LA INFORMACION DE TODOS LOS JUGADORES
+	status=sock->receive(packReceive);
+	if (status == sf::Socket::Done) {
+		//RECOGEMOS TODA LA INFO DE LOS PLAYERS
+		packReceive >> VectorPlayersSize;
+		//Rellenamos vector
+		if (VectorPlayersSize == 4) {
+			for (int i = 0; i < VectorPlayersSize; i++)
+			{
+				packReceive >> auxName;
+				packReceive >> auxPositionX;
+				packReceive >> auxPositionY;
+				packReceive >> auxMoney;
+				packReceive >> auxIsYourTurn;
+
+				//RELLENAMOS VECTOR DE PLAYERS
+				auxPlayer.name = auxName;
+				auxPlayer.position.x = auxPositionX;
+				auxPlayer.position.y = auxPositionY;
+				auxPlayer.money = auxMoney;
+				auxPlayer.isYourTurn = auxIsYourTurn;
+				players.push_back(auxPlayer);
+
+			}
+		}
+		startGame = true;
+	}
+	while (running)
+	{
+		/*for (int i = 0; i < VectorPlayersSize; i++)
+		{
+			std::cout << players[i].name << std::endl;
+			std::cout << players[i].position.x << std::endl;
+			std::cout << players[i].position.y << std::endl;
+			std::cout << players[i].money << std::endl;
+			std::cout << players[i].isYourTurn << std::endl;
+		}*/
+
+		status = sock->receive(packReceive);
+		if (status == sf::Socket::Done)
+		{
+			packReceive >> order;
+			switch (order)
+			{
+			case 0:
+
+				break;
+			case 1:
+				break;
+			case 2:
+				break;
+			}
+		}
+	}
 }
+
 
 int main()
 {
@@ -115,7 +154,7 @@ int main()
 	//LOBBY
 	/////////////// --- TEXT --- //////////////////
 	//--- TITLE ---//
-	sf::Text lobbyText("Rento Fortune", fontCourbd, 34);
+	sf::Text lobbyText("Monopoly Game", fontCourbd, 34);
 	lobbyText.setFillColor(sf::Color(255, 255, 255));
 	lobbyText.setPosition(500 - 140, 400 - 150);
 	lobbyText.setStyle(sf::Text::Bold);
@@ -141,7 +180,8 @@ int main()
 		std::cout << "No se ha encontrado el fondo de pantalla de la Lobby" << std::endl;
 	}
 	sf::Sprite spriteLobby;
-	sf::Vector2u size = textureLobby.getSize();
+	//sf::Vector2u size = textureLobby.getSize();
+	spriteLobby.setScale(sf::Vector2f(2.0f, 2.0f));
 	spriteLobby.setTexture(textureLobby);
 
 	//DRAW
@@ -179,36 +219,47 @@ int main()
 		window.clear();
 	}
 
-	//BUCLE DE JUEGO
-	while (running)
+	//////// --- TABLERO DEL JUEGO --- ////////////
+	sf::Texture textureBoard;
+	if (!textureBoard.loadFromFile("chess.jpg"))
 	{
-		while (window.isOpen())
+		std::cout << "No se ha encontrado el fondo de pantalla de la chess" << std::endl;
+	}
+	sf::Sprite spriteBoard;
+	//sf::Vector2u size = textureLobby.getSize();
+	spriteBoard.setScale(sf::Vector2f(0.5f, 0.5f));
+	spriteBoard.setTexture(textureBoard);
+
+	//BUCLE DE JUEGO
+	while (window.isOpen() && running)
+	{
+		sf::Event evento;
+		while (window.pollEvent(evento))
 		{
-			sf::Event evento;
-			while (window.pollEvent(evento))
+			switch (evento.type)
 			{
-				switch (evento.type)
+			case sf::Event::Closed:
+
+
+				break;
+			case sf::Event::KeyPressed:
+				if (evento.key.code == sf::Keyboard::Escape)
+
+					window.close();
+				else if (evento.key.code == sf::Keyboard::Return)
 				{
-				case sf::Event::Closed:
-
-
-					break;
-				case sf::Event::KeyPressed:
-					if (evento.key.code == sf::Keyboard::Escape)
-
-						window.close();
-					else if (evento.key.code == sf::Keyboard::Return)
-					{
-						
-					}
-					break;
+					
 				}
+				break;
 			}
-
-			//PANTALLA DE JUEGO
-			window.display();
-			window.clear();
 		}
+
+		//DRAW 
+		window.draw(spriteBoard);
+
+		//PANTALLA DE JUEGO
+		window.display();
+		window.clear();
 	}
 
 	return 0;

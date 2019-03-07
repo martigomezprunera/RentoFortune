@@ -1,8 +1,6 @@
 ﻿  Source.cpp
-c:\practicaredes\rentofortune\gameserver\source.cpp(255): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+c:\practicaredes\rentofortune\gameserver\source.cpp(253): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
   Generating code
-  1 of 225 functions ( 0.4%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+  All 225 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   Finished generating code
   GameServer.vcxproj -> C:\practicaRedes\RentoFortune\x64\Release\GameServer.exe

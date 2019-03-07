@@ -15,6 +15,7 @@
 //Variables Globales
 std::mutex mtx;
 bool running = true;
+bool StartedGame = false;
 sf::Packet packet;
 sf::TcpListener listener;
 sf::Socket::Status status;
@@ -155,7 +156,8 @@ int main()
 
 	//VARIABLES JUEGO
 	PlayerInfo playerInfo;
-	int NumJugadores = 0;
+	int NumJugadores;
+	
 
 	//BUCLE DE JUEGO
 	while (running)
@@ -247,18 +249,49 @@ int main()
 									break;
 								}
 
-								//NUMERO DE JUGADORES EN PARTIDA			
-								for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
+								//NUMERO DE JUGADORES EN PARTIDA
+								NumJugadores = players.size();
+								if (NumJugadores == 4)
 								{
-									sf::TcpSocket& client = **it;
-									NumJugadores = players.size();
-									if (NumJugadores == 4)
+									for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
 									{
-										packSend << Ordenes::StartGame;
-										packSend << NumJugadores;
-										client.send(packSend);
+										sf::TcpSocket& client = **it;
+										
+										//START GAME
+										if (StartedGame == false)
+										{
+
+											packSend << NumJugadores;
+											//ENVIO DE TODA LA INFORMACION DE LOS JUGADORES
+											for (int i = 0; i < NumJugadores; i++)
+											{
+												packSend << players[i].name;
+												packSend << players[i].position.x;
+												packSend << players[i].position.y;
+												packSend << players[i].money;
+												packSend << players[i].isYourTurn;
+
+												std::cout << players[i].name << std::endl;
+												std::cout << players[i].position.x << std::endl;
+												std::cout << players[i].position.y << std::endl;
+												std::cout << players[i].money << std::endl;
+												std::cout << players[i].isYourTurn << std::endl;
+
+											}
+
+											//ENVIAMOS PACKET
+											status = client.send(packSend);
+											if (status == sf::Socket::Done)
+											{
+												std::cout << "He enviado la informacion de los jugadores" << std::endl;
+												std::cout << "He enviado que empiece el juego" << std::endl;
+											}
+
+										}
 									}
+									StartedGame = true;
 								}
+								
 							}
 							else if (status == sf::Socket::Disconnected)
 							{
