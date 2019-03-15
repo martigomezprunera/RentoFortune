@@ -157,8 +157,8 @@ int main()
 	//VARIABLES JUEGO
 	PlayerInfo playerInfo;
 	int NumJugadores;
+	int counterPlayer = 0;
 	
-
 	//BUCLE DE JUEGO
 	while (running)
 	{
@@ -212,18 +212,16 @@ int main()
 							status = client.receive(packReceive);
 							if (status == sf::Socket::Done)
 							{
+
 								packReceive >> order;
 								std::cout << "He recibido la orden " << order << " del puerto " << client.getRemotePort() << std::endl;
 
 								switch (order)
 								{
 								case 0:
-									//CREACION DE JUGADOR
+									counterPlayer++;
 									packReceive >> playerInfo.name;
-									packReceive >> playerInfo.position.x;
-									packReceive >> playerInfo.position.y;
-									packReceive >> playerInfo.money;
-									packReceive >> playerInfo.isYourTurn;
+									playerInfo.id = counterPlayer;
 
 									//AÑADIMOS JUGADOR AL VECTOR
 									mtx.lock();
@@ -233,6 +231,7 @@ int main()
 									//COMPROBAMOS JUGADOR
 									/*for (int i = 0; i < players.size(); i++)
 									{
+										std::cout << players[i].id << std::endl;
 										std::cout << players[i].name << std::endl;
 										std::cout << players[i].position.x << std::endl;
 										std::cout << players[i].position.y << std::endl;
@@ -265,6 +264,7 @@ int main()
 											//ENVIO DE TODA LA INFORMACION DE LOS JUGADORES
 											for (int i = 0; i < NumJugadores; i++)
 											{
+												packSend << players[i].id;
 												packSend << players[i].name;
 												packSend << players[i].position.x;
 												packSend << players[i].position.y;

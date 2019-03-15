@@ -22,6 +22,7 @@ sf::Mutex mtx;
 //VECTOR PLAYER
 std::vector<PlayerInfo> players;
 int VectorPlayersSize;
+int indexPlayer;
 
 //ENUM (ORDENES DEL CLIENTE)
 enum Ordenes
@@ -54,6 +55,7 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 	int auxPositionY;
 	int auxMoney;
 	bool auxIsYourTurn;
+	int auxId;
 	//RECIBIMOS LA INFORMACION DE TODOS LOS JUGADORES
 	status=sock->receive(packReceive);
 	if (status == sf::Socket::Done) {
@@ -63,6 +65,7 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 		if (VectorPlayersSize == 4) {
 			for (int i = 0; i < VectorPlayersSize; i++)
 			{
+				packReceive >> auxId;
 				packReceive >> auxName;
 				packReceive >> auxPositionX;
 				packReceive >> auxPositionY;
@@ -70,6 +73,7 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 				packReceive >> auxIsYourTurn;
 
 				//RELLENAMOS VECTOR DE PLAYERS
+				auxPlayer.id = auxId;
 				auxPlayer.name = auxName;
 				auxPlayer.position.x = auxPositionX;
 				auxPlayer.position.y = auxPositionY;
@@ -196,13 +200,9 @@ int main()
 	std::cout << "What's your name: ";
 	std::cin >> aliasName;
 
-	//CONSTRUIMOS EL JUGADOR
-	PlayerInfo playerInfo;
-	playerInfo.name = aliasName;
-
 	//ENVIAMOS INFO DEL JUGADOR
 	pack << Ordenes::CreatePlayer;
-	pack << playerInfo;
+	pack << aliasName;
 	sock.send(pack);
 
 	//ESPERANDO A QUE SE CONECTEN 4 JUGADORES
@@ -230,9 +230,68 @@ int main()
 	spriteBoard.setScale(sf::Vector2f(0.5f, 0.5f));
 	spriteBoard.setTexture(textureBoard);
 
+	//ID PROPIO DEL JUGADOR
+	for (int i = 0; i < players.size(); i++)
+	{
+		if (players[i].name == aliasName)
+		{
+			//LA POSICION DEL JUGADOR DENTRO DEL VECTOR
+			indexPlayer = i;
+		}
+	}
+
+	//TEXTO
+	sf::Text myPlayer;
+	sf::Text Player1Text;
+	sf::Text Player2Text;
+	sf::Text Player3Text;
+	int counterPlayerText = 0;
+	for (int i = 0; i < players.size(); i++)
+	{
+		//Printamos el texto
+		if (players[i].name == aliasName)
+		{
+			//TEXT
+			myPlayer = { aliasName, fontCourbd, 24 };
+			myPlayer.setFillColor(sf::Color(255, 0, 0));
+			myPlayer.setPosition(50, 650);
+			myPlayer.setStyle(sf::Text::Bold);
+		}
+		else
+		{
+			switch (counterPlayerText)
+			{
+			case 0:
+				//TEXT
+				Player1Text = { players[i].name, fontCourbd, 24 };
+				Player1Text.setFillColor(sf::Color(0, 255, 0));
+				Player1Text.setPosition(700, 100);
+				Player1Text.setStyle(sf::Text::Bold);
+				break;
+			case 1:
+				//TEXT
+				Player2Text = { players[i].name, fontCourbd, 24 };
+				Player2Text.setFillColor(sf::Color(0, 0, 255));
+				Player2Text.setPosition(700, 300);
+				Player2Text.setStyle(sf::Text::Bold);
+				break;
+			case 2:
+				//TEXT
+				Player3Text = { players[i].name, fontCourbd, 24 };
+				Player3Text.setFillColor(sf::Color(128, 128, 255));
+				Player3Text.setPosition(700, 500);
+				Player3Text.setStyle(sf::Text::Bold);
+				break;
+			}
+			counterPlayerText++;
+		}
+	}
+
 	//BUCLE DE JUEGO
 	while (window.isOpen() && running)
 	{
+		//CORRECTA COLOCACIÓN DEL HUD
+
 		sf::Event evento;
 		while (window.pollEvent(evento))
 		{
@@ -255,7 +314,12 @@ int main()
 		}
 
 		//DRAW 
+		window.draw(myPlayer);
+		window.draw(Player1Text);
+		window.draw(Player2Text);
+		window.draw(Player3Text);
 		window.draw(spriteBoard);
+
 
 		//PANTALLA DE JUEGO
 		window.display();

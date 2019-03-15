@@ -5,6 +5,7 @@
 class PlayerInfo
 {
 public:
+	int id;
 	std::string name;
 	sf::Vector2i position;
 	int money;
