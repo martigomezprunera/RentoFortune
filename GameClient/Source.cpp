@@ -240,22 +240,49 @@ int main()
 		}
 	}
 
-	//TEXTO
+	//TEXTO Alias Player
 	sf::Text myPlayer;
 	sf::Text Player1Text;
 	sf::Text Player2Text;
 	sf::Text Player3Text;
+
+	//TEXTO Dinero Player
+	sf::Text myPlayerMoney;
+	sf::Text Player1Money;
+	sf::Text Player2Money;
+	sf::Text Player3Money;
+
+	//CIRCLE TOKEN
+	sf::CircleShape myPlayerToken(10);
+	sf::CircleShape Player1Token(10);
+	sf::CircleShape Player2Token(10);
+	sf::CircleShape Player3Token(10);
+
 	int counterPlayerText = 0;
+	std::string CorrectMoney;
 	for (int i = 0; i < players.size(); i++)
 	{
 		//Printamos el texto
 		if (players[i].name == aliasName)
 		{
 			//TEXT
-			myPlayer = { aliasName, fontCourbd, 24 };
+			myPlayer = { players[i].name, fontCourbd, 24 };
 			myPlayer.setFillColor(sf::Color(255, 0, 0));
 			myPlayer.setPosition(50, 650);
 			myPlayer.setStyle(sf::Text::Bold);
+
+			//MONEY
+			CorrectMoney = std::to_string(players[i].money).append("$");
+			myPlayerMoney = { CorrectMoney, fontCourbd, 24 };
+			myPlayerMoney.setFillColor(sf::Color(52, 73, 40));
+			myPlayerMoney.setPosition(50, 680);
+			myPlayerMoney.setStyle(sf::Text::Bold);
+
+			//CIRCLE TOKEN
+			myPlayerToken.setPosition(550, 545);
+			myPlayerToken.setFillColor(sf::Color(255, 0, 0));
+			myPlayerToken.setOutlineThickness(2);
+			myPlayerToken.setOutlineColor(sf::Color(0, 0, 0));
 		}
 		else
 		{
@@ -267,6 +294,19 @@ int main()
 				Player1Text.setFillColor(sf::Color(0, 255, 0));
 				Player1Text.setPosition(700, 100);
 				Player1Text.setStyle(sf::Text::Bold);
+
+				//MONEY
+				CorrectMoney = std::to_string(players[i].money).append("$");
+				Player1Money = {CorrectMoney, fontCourbd, 24 };
+				Player1Money.setFillColor(sf::Color(52, 73, 40));
+				Player1Money.setPosition(700, 130);
+				Player1Money.setStyle(sf::Text::Bold);
+
+				//CIRCLE TOKEN
+				Player1Token.setPosition(525, 570);
+				Player1Token.setFillColor(sf::Color(0, 255, 0));
+				Player1Token.setOutlineThickness(2);
+				Player1Token.setOutlineColor(sf::Color(0, 0, 0));
 				break;
 			case 1:
 				//TEXT
@@ -274,6 +314,19 @@ int main()
 				Player2Text.setFillColor(sf::Color(0, 0, 255));
 				Player2Text.setPosition(700, 300);
 				Player2Text.setStyle(sf::Text::Bold);
+
+				//MONEY
+				CorrectMoney = std::to_string(players[i].money).append("$");
+				Player2Money = { CorrectMoney, fontCourbd, 24 };
+				Player2Money.setFillColor(sf::Color(52, 73, 40));
+				Player2Money.setPosition(700, 330);
+				Player2Money.setStyle(sf::Text::Bold);
+
+				//CIRCLE TOKEN
+				Player2Token.setPosition(550, 570);
+				Player2Token.setFillColor(sf::Color(0, 0, 255));
+				Player2Token.setOutlineThickness(2);
+				Player2Token.setOutlineColor(sf::Color(0, 0, 0));
 				break;
 			case 2:
 				//TEXT
@@ -281,6 +334,19 @@ int main()
 				Player3Text.setFillColor(sf::Color(128, 128, 255));
 				Player3Text.setPosition(700, 500);
 				Player3Text.setStyle(sf::Text::Bold);
+
+				//MONEY
+				CorrectMoney = std::to_string(players[i].money).append("$");
+				Player3Money = { CorrectMoney, fontCourbd, 24 };
+				Player3Money.setFillColor(sf::Color(52, 73, 40));
+				Player3Money.setPosition(700, 530);
+				Player3Money.setStyle(sf::Text::Bold);
+
+				//CIRCLE TOKEN
+				Player3Token.setPosition(575, 570);
+				Player3Token.setFillColor(sf::Color(128, 128, 255));
+				Player3Token.setOutlineThickness(2);
+				Player3Token.setOutlineColor(sf::Color(0, 0, 0));
 				break;
 			}
 			counterPlayerText++;
@@ -290,8 +356,6 @@ int main()
 	//BUCLE DE JUEGO
 	while (window.isOpen() && running)
 	{
-		//CORRECTA COLOCACIÓN DEL HUD
-
 		sf::Event evento;
 		while (window.pollEvent(evento))
 		{
@@ -314,12 +378,25 @@ int main()
 		}
 
 		//DRAW 
+		//TEXT 
 		window.draw(myPlayer);
 		window.draw(Player1Text);
 		window.draw(Player2Text);
 		window.draw(Player3Text);
+
+		//MONEY
+		window.draw(myPlayerMoney);
+		window.draw(Player1Money);
+		window.draw(Player2Money);
+		window.draw(Player3Money);
+
 		window.draw(spriteBoard);
 
+		//TOKENs
+		window.draw(myPlayerToken);
+		window.draw(Player1Token);
+		window.draw(Player2Token);
+		window.draw(Player3Token);
 
 		//PANTALLA DE JUEGO
 		window.display();
