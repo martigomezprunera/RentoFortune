@@ -143,7 +143,6 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Button.h" />
     <ClInclude Include="PlayerInfo.h" />
   </ItemGroup>
   <ItemGroup>

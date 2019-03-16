@@ -8,9 +8,12 @@
 #include <mutex>
 #include <list>
 #include <SFML/Network.hpp>
+#include <stdio.h>      
+#include <stdlib.h>     
+#include <time.h>      
 
 //CONSTANTES
-#define PORT 50001
+#define PORT 50000
 #define IP "127.0.0.1"
 
 //VARIABLES GLOBALES

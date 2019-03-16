@@ -7,9 +7,12 @@
 #include <mutex>
 #include <list>
 #include <SFML/Network.hpp>
+#include <stdio.h>      
+#include <stdlib.h>     
+#include <time.h>       
 
 //CONSTANTES
-#define PORT 50001
+#define PORT 50000
 #define IP "127.0.0.1"
 
 //Variables Globales
@@ -19,8 +22,16 @@ bool StartedGame = false;
 sf::Packet packet;
 sf::TcpListener listener;
 sf::Socket::Status status;
+
 //NumTurn
 int indexTurn;
+
+//Dices
+int dice1;
+int dice2;
+int resultDices;
+int MoveSquares;
+float casillasTotales;
 
 //Lista para guardar los sockets
 std::list<sf::TcpSocket*> clients;
@@ -144,6 +155,9 @@ void ControlServer()
 
 int main()
 {
+	//RANDOM
+	srand(time(NULL));
+
 	//VARIABLES CONEXION
 	sf::TcpSocket sock;
 	sf::TcpSocket::Status status;
@@ -245,7 +259,37 @@ int main()
 									break;
 								case 1://ThrowDice///////
 									packReceive >> indexTurn;
-									std::cout << indexTurn << std::endl;
+									
+									//RANDOM DICES
+									dice1 = rand() % 6 + 1;
+									dice2 = rand() % 6 + 1;
+									resultDices = dice1 + dice2;
+									casillasTotales = resultDices / 10;
+
+									//CASO HORIZONTAL (CASILLAS DE ABAJO)
+									if (casillasTotales < 1)
+									{
+										//NO SUPERA LAS 10 CASILLAS
+										players[indexTurn].position.x = players[indexTurn].position.x - (51 * resultDices);
+									}
+									else
+									{
+										//SUPERA LAS 10 CASILLAS
+										players[indexTurn].position.x = players[indexTurn].position.x - (51 * 10);
+
+										//CUANTAS CASILLAS SUPERA DE 10
+										MoveSquares = resultDices % 10;
+										players[indexTurn].position.y = players[indexTurn].position.y - (51 * MoveSquares);
+									}
+
+									//CASO HORIZONTAL (CASILLAS DE ARRIBA)
+
+									//CASO VERTICAL (CASILLAS DE IZQUIERDA)
+
+									//CASO VERTICAL (CASILLAS DE DERECHA)
+
+									//ENVIAMOS LA POSICION
+
 									break;
 								case 2:
 									break;
