@@ -13,7 +13,8 @@
 #include <time.h>      
 
 //CONSTANTES
-#define PORT 50000
+#define PORT 50001
+//#define PORT 50000
 #define IP "127.0.0.1"
 
 //VARIABLES GLOBALES
@@ -26,6 +27,15 @@ sf::Mutex mtx;
 std::vector<PlayerInfo> players;
 int VectorPlayersSize;
 int indexPlayer;
+
+//TEXTO Dinero Player
+sf::Text myPlayerMoney;
+sf::Text Player1Money;
+sf::Text Player2Money;
+sf::Text Player3Money;
+
+//CIRCLE TOKEN
+sf::CircleShape playerTokens[4];
 
 //Vector2 mouse
 sf::Vector2<int> mousePos;
@@ -64,13 +74,16 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 	int auxMoney;
 	bool auxIsYourTurn;
 	int auxId;
+	int auxCasilla;
 	//RECIBIMOS LA INFORMACION DE TODOS LOS JUGADORES
 	status=sock->receive(packReceive);
-	if (status == sf::Socket::Done) {
+	if (status == sf::Socket::Done) 
+	{
 		//RECOGEMOS TODA LA INFO DE LOS PLAYERS
 		packReceive >> VectorPlayersSize;
 		//Rellenamos vector
-		if (VectorPlayersSize == 4) {
+		if (VectorPlayersSize == 4) 
+		{
 			for (int i = 0; i < VectorPlayersSize; i++)
 			{
 				packReceive >> auxId;
@@ -79,6 +92,8 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 				packReceive >> auxPositionY;
 				packReceive >> auxMoney;
 				packReceive >> auxIsYourTurn;
+				packReceive >> auxCasilla;
+
 
 				//RELLENAMOS VECTOR DE PLAYERS
 				auxPlayer.id = auxId;
@@ -87,6 +102,7 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 				auxPlayer.position.y = auxPositionY;
 				auxPlayer.money = auxMoney;
 				auxPlayer.isYourTurn = auxIsYourTurn;
+				auxPlayer.casilla = auxCasilla;
 				players.push_back(auxPlayer);
 
 			}
@@ -96,7 +112,7 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 
 	while (running)
 	{
-		for (int i = 0; i < VectorPlayersSize; i++)
+		/*for (int i = 0; i < VectorPlayersSize; i++)
 		{
 			std::cout << players[i].id << std::endl;
 			std::cout << players[i].name << std::endl;
@@ -104,7 +120,7 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 			std::cout << players[i].position.y << std::endl;
 			std::cout << players[i].money << std::endl;
 			std::cout << players[i].isYourTurn << std::endl;
-		}
+		}*/
 
 		status = sock->receive(packReceive);
 		if (status == sf::Socket::Done)
@@ -114,7 +130,16 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 			{
 			case 0:
 				break;
-			case 1:
+			case 1://ResultDices
+				packReceive >> auxId;
+				packReceive >> auxCasilla;
+				packReceive >> auxPositionX;
+				packReceive >> auxPositionY;
+				//Actualizamos Player que ha tirado//////
+				players[auxId].casilla = auxCasilla;
+				players[auxId].position.x = auxPositionX;
+				players[auxId].position.y = auxPositionY;
+				playerTokens[auxId].setPosition(players[auxId].position.x, players[auxId].position.y);
 				break;
 			case 2:
 				break;
@@ -276,24 +301,13 @@ int main()
 	sf::Text myPlayer;
 	sf::Text Player1Text;
 	sf::Text Player2Text;
-	sf::Text Player3Text;
-
-	//TEXTO Dinero Player
-	sf::Text myPlayerMoney;
-	sf::Text Player1Money;
-	sf::Text Player2Money;
-	sf::Text Player3Money;
-
-	//CIRCLE TOKEN
-	sf::CircleShape myPlayerToken(10);
-	sf::CircleShape Player1Token(10);
-	sf::CircleShape Player2Token(10);
-	sf::CircleShape Player3Token(10);
+	sf::Text Player3Text;	
 
 	int counterPlayerText = 0;
 	std::string CorrectMoney;
 	for (int i = 0; i < players.size(); i++)
 	{
+		playerTokens[i].setRadius(10);
 		//Printamos el texto
 		if (players[i].name == aliasName)
 		{
@@ -311,10 +325,10 @@ int main()
 			myPlayerMoney.setStyle(sf::Text::Bold);
 
 			//CIRCLE TOKEN
-			myPlayerToken.setPosition(players[i].position.x, players[i].position.y);
-			myPlayerToken.setFillColor(sf::Color(255, 0, 0));
-			myPlayerToken.setOutlineThickness(2);
-			myPlayerToken.setOutlineColor(sf::Color(0, 0, 0));
+			playerTokens[i].setPosition(players[i].position.x, players[i].position.y);
+			playerTokens[i].setFillColor(sf::Color(255, 0, 0));
+			playerTokens[i].setOutlineThickness(2);
+			playerTokens[i].setOutlineColor(sf::Color(0, 0, 0));
 		}
 		else
 		{
@@ -335,10 +349,10 @@ int main()
 				Player1Money.setStyle(sf::Text::Bold);
 
 				//CIRCLE TOKEN
-				Player1Token.setPosition(players[i].position.x, players[i].position.y);
-				Player1Token.setFillColor(sf::Color(0, 255, 0));
-				Player1Token.setOutlineThickness(2);
-				Player1Token.setOutlineColor(sf::Color(0, 0, 0));
+				playerTokens[i].setPosition(players[i].position.x, players[i].position.y);
+				playerTokens[i].setFillColor(sf::Color(0, 255, 0));
+				playerTokens[i].setOutlineThickness(2);
+				playerTokens[i].setOutlineColor(sf::Color(0, 0, 0));
 				break;
 			case 1:
 				//TEXT
@@ -355,10 +369,10 @@ int main()
 				Player2Money.setStyle(sf::Text::Bold);
 
 				//CIRCLE TOKEN
-				Player2Token.setPosition(players[i].position.x, players[i].position.y);
-				Player2Token.setFillColor(sf::Color(0, 0, 255));
-				Player2Token.setOutlineThickness(2);
-				Player2Token.setOutlineColor(sf::Color(0, 0, 0));
+				playerTokens[i].setPosition(players[i].position.x, players[i].position.y);
+				playerTokens[i].setFillColor(sf::Color(0, 0, 255));
+				playerTokens[i].setOutlineThickness(2);
+				playerTokens[i].setOutlineColor(sf::Color(0, 0, 0));
 				break;
 			case 2:
 				//TEXT
@@ -375,10 +389,10 @@ int main()
 				Player3Money.setStyle(sf::Text::Bold);
 
 				//CIRCLE TOKEN
-				Player3Token.setPosition(players[i].position.x, players[i].position.y);
-				Player3Token.setFillColor(sf::Color(128, 128, 255));
-				Player3Token.setOutlineThickness(2);
-				Player3Token.setOutlineColor(sf::Color(0, 0, 0));
+				playerTokens[i].setPosition(players[i].position.x, players[i].position.y);
+				playerTokens[i].setFillColor(sf::Color(128, 128, 255));
+				playerTokens[i].setOutlineThickness(2);
+				playerTokens[i].setOutlineColor(sf::Color(0, 0, 0));
 				break;
 			}
 			counterPlayerText++;
@@ -406,20 +420,25 @@ int main()
 				case sf::Event::MouseButtonPressed:
 					if (evento.mouseButton.button == sf::Mouse::Left)
 					{
+						std::cout << "the right button was pressed" << std::endl;
+						std::cout << "mouse x: " << evento.mouseButton.x << std::endl;
+						std::cout << "mouse y: " << evento.mouseButton.y << std::endl;
 						if (players[indexPlayer].isYourTurn)
-						{
-							std::cout << "the right button was pressed" << std::endl;
-							std::cout << "mouse x: " << evento.mouseButton.x << std::endl;
-							std::cout << "mouse y: " << evento.mouseButton.y << std::endl;
-							//Preparamos pack
-							pack.clear();
-							pack << Ordenes::ThrowDices;		
-							pack << indexPlayer;
-							status = sock.send(pack);
-							if (status == sf::Socket::Done)
+						{							
+							
+							if ((evento.mouseButton.x > 900) && (evento.mouseButton.y > 750))
 							{
-								//std::cout << indexPlayer << std::endl;
+								//Preparamos pack
+								pack.clear();
+								pack << Ordenes::ThrowDices;
+								pack << indexPlayer;
+								status = sock.send(pack);
+								if (status == sf::Socket::Done)
+								{
+									//std::cout << indexPlayer << std::endl;
+								}
 							}
+							
 						}
 					}
 					break;
@@ -453,10 +472,10 @@ int main()
 		window.draw(spriteBoard);
 
 		//TOKENs
-		window.draw(myPlayerToken);
-		window.draw(Player1Token);
-		window.draw(Player2Token);
-		window.draw(Player3Token);
+		window.draw(playerTokens[0]);
+		window.draw(playerTokens[1]);
+		window.draw(playerTokens[2]);
+		window.draw(playerTokens[3]);
 
 		//BUTTON
 		//SI E TU TURNO

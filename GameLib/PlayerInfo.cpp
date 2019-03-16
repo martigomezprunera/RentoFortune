@@ -4,8 +4,7 @@
 
 PlayerInfo::PlayerInfo()
 {
-	position.x = std::rand() % 10;
-	position.y = std::rand() % 10;
+	casilla = 0;
 	money = 1250;
 	isYourTurn = false;
 }

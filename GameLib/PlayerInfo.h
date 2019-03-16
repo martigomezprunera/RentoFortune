@@ -10,6 +10,7 @@ public:
 	sf::Vector2i position;
 	int money;
 	bool isYourTurn;
+	int casilla;
 
 	PlayerInfo();
 	~PlayerInfo();

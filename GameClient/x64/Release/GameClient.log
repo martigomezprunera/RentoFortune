@@ -1,1 +1,32 @@
-﻿  GameClient.vcxproj -> C:\practicaRedes\RentoFortune\x64\Release\GameClient.exe
+﻿  Source.cpp
+e:\3o\prog jocs xarxes\rentofortune\gameclient\source.cpp(142): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+          with
+          [
+              T=int
+          ]
+e:\3o\prog jocs xarxes\rentofortune\gameclient\source.cpp(328): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+          with
+          [
+              T=int
+          ]
+e:\3o\prog jocs xarxes\rentofortune\gameclient\source.cpp(352): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+          with
+          [
+              T=int
+          ]
+e:\3o\prog jocs xarxes\rentofortune\gameclient\source.cpp(372): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+          with
+          [
+              T=int
+          ]
+e:\3o\prog jocs xarxes\rentofortune\gameclient\source.cpp(392): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+          with
+          [
+              T=int
+          ]
+  Generating code
+  1 of 310 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  GameClient.vcxproj -> E:\3o\Prog jocs xarxes\RentoFortune\x64\Release\GameClient.exe

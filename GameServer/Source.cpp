@@ -12,8 +12,31 @@
 #include <time.h>       
 
 //CONSTANTES
-#define PORT 50000
+#define PORT 50001
+//#define PORT 50000
 #define IP "127.0.0.1"
+//enum
+enum tipoCasilla
+{
+	PROPIEDAD,
+	ESTACION,
+	NEUTRA,
+	FREEMONEY,
+	TAX,
+	JAIL,
+	COMPANY
+};
+//struct casilla
+struct casilla 
+{
+	tipoCasilla tipo;
+	std::string name;
+	int numCasas;
+	int price;
+	int priceEdification;
+	int mortgageValue;
+	int owner;
+};
 
 //Variables Globales
 std::mutex mtx;
@@ -22,9 +45,13 @@ bool StartedGame = false;
 sf::Packet packet;
 sf::TcpListener listener;
 sf::Socket::Status status;
+casilla tablero[40];
 
+//VECTOR DE PLAYES
+std::vector<PlayerInfo> players;
 //NumTurn
 int indexTurn;
+sf::Vector2<int> auxPosition;
 
 //Dices
 int dice1;
@@ -41,7 +68,8 @@ sf::SocketSelector selector;
 //ENUM (ORDENES DEL CLIENTE)
 enum Ordenes
 {
-	StartGame
+	StartGame,
+	ResultDice
 };
 
 //OVERCHARGED FUNCTIONS (PLAYER INFO)
@@ -65,92 +93,308 @@ sf::Packet& operator >>(sf::Packet& packet, Ordenes& orders)
 	int option = static_cast<int>(orders);
 	return packet >> option;
 }
-
-//TCPSocketSelector
-void ControlServer()
+//Function calculate casilla
+sf::Vector2<int> PositionCasilla(int numCasilla)
 {
-	status = listener.listen(PORT);
-	if (status != sf::Socket::Done)
+	sf::Vector2<int> auxVec;
+	int aux;
+	if (numCasilla <= 10)
 	{
-		std::cout << "Error al abrir listener\n";
-		exit(0);
-	}
-	//Añadimos el listener
-	selector.add(listener);
-
-	while (running)
-	{
-		// Make the selector wait for data on any socket
-		if (selector.wait())
+		aux = numCasilla % 11;
+		auxVec.y = 540;
+		for (int i = 0; i < 4; i++)
 		{
-			// Test the listener
-			if (selector.isReady(listener))
+			if (players[i].casilla == numCasilla)
 			{
-				// The listener is ready: there is a pending connection
-				sf::TcpSocket* client = new sf::TcpSocket;
-				if (listener.accept(*client) == sf::Socket::Done)
-				{
-					// Add the new client to the clients list
-					std::cout << "Llega el cliente con puerto: " << client->getRemotePort() << std::endl;
-					clients.push_back(client);
-					// Add the new client to the selector so that we will
-					// be notified when he sends something
-					selector.add(*client);
-				}
-				else
-				{
-					// Error, we won't get a new connection, delete the socket
-					std::cout << "Error al recoger conexión nueva\n";
-					delete client;
-				}
+				auxVec.y += 5;
 			}
-			else
+		}
+		
+		auxVec.x = 550 - (aux * 51);
+	}
+	else if (numCasilla<=20)
+	{
+		aux = (numCasilla-10) % 11;
+		auxVec.x = 40;
+		for (int i = 0; i < 4; i++)
+		{
+			if (players[i].casilla == numCasilla)
 			{
-				// The listener socket is not ready, test all other sockets (the clients)
-				for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
-				{
-					sf::TcpSocket& client = **it;
-					if (selector.isReady(client))
-					{
-						// The client has sent some data, we can receive it
-						sf::Packet packReceive;
-						int order;
-						status = client.receive(packReceive);
-						if (status == sf::Socket::Done)
-						{
-							packReceive >> order;
-							std::cout << "He recibido la orden" << order << " del puerto " << client.getRemotePort() << std::endl;
-							switch (order)
-							{
-							case 0:
-								
-								break;
-							case 1:
-								break;
-							case 2:
-								break;
-							case 3:
-								break;
-							}
-						}
-						else if (status == sf::Socket::Disconnected)
-						{
-							selector.remove(client);
-							std::cout << "Elimino el socket que se ha desconectado\n";
-						}
-						else
-						{
-							std::cout << "Error al recibir de " << client.getRemotePort() << std::endl;
-						}
-					}
-				}
+				auxVec.x -= 5;
 			}
+		}
+		auxVec.y = 553 - (aux * 51);
+	}
+	else if (numCasilla <= 30)
+	{
+		aux = (numCasilla - 20) % 11;
+		auxVec.y = 40;
+		for (int i = 0; i < 4; i++)
+		{
+			if (players[i].casilla == numCasilla)
+			{
+				auxVec.y -= 5;
+			}
+		}
+
+		auxVec.x = 40 + (aux * 51);
+	}
+	else
+	{
+		aux = (numCasilla - 30) % 11;
+		auxVec.x = 549;
+		for (int i = 0; i < 4; i++)
+		{
+			if (players[i].casilla == numCasilla)
+			{
+				auxVec.x += 5;
+			}
+		}
+		auxVec.y = 40 + (aux * 51);
+	}
+	return auxVec;
+}
+//Funcion tablero
+void initializeBoard()
+{
+	for (int i = 0; i < 40; i++)
+	{
+		tablero[i].numCasas = 0;
+		switch (i)
+		{
+		case 0:		
+			tablero[i].tipo = tipoCasilla::NEUTRA;
+			break;
+		case 1:
+			tablero[i].price = 60;
+			tablero[i].owner = -1;
+			tablero[i].name = "Primera Marron";
+			tablero[i].priceEdification = 100;
+			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			break;
+		case 2:
+			tablero[i].tipo = tipoCasilla::FREEMONEY;
+			break;
+		case 3:
+			tablero[i].price = 60;
+			tablero[i].owner = -1;
+			tablero[i].name = "Segunda Marron";
+			tablero[i].priceEdification = 100;
+			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			break;
+		case 4:
+			tablero[i].price = 100;
+			tablero[i].tipo = tipoCasilla::TAX;
+			break;
+		case 5:
+			tablero[i].price = 200;
+			tablero[i].owner = -1;
+			tablero[i].name = "Primera Estacion";
+			tablero[i].tipo = tipoCasilla::ESTACION;
+			break;
+		case 6:
+			tablero[i].price = 100;
+			tablero[i].owner = -1;
+			tablero[i].name = "Primera Azul";
+			tablero[i].priceEdification = 140;
+			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			break;
+		case 7:
+			tablero[i].tipo = tipoCasilla::FREEMONEY;
+			break;
+		case 8:
+			tablero[i].price = 100;
+			tablero[i].owner = -1;
+			tablero[i].name = "Segunda Azul";
+			tablero[i].priceEdification = 140;
+			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			break;
+		case 9:
+			tablero[i].price = 120;
+			tablero[i].owner = -1;
+			tablero[i].name = "Tercera Azul";
+			tablero[i].priceEdification = 160;
+			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			break;
+		case 10:
+			tablero[i].tipo = tipoCasilla::NEUTRA;
+			break;
+		case 11:
+			tablero[i].price = 140;
+			tablero[i].owner = -1;
+			tablero[i].name = "Primera Rosa";
+			tablero[i].priceEdification = 180;
+			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			break;
+		case 12:
+			tablero[i].price = 150;
+			tablero[i].owner = -1;
+			tablero[i].name = "Luz";
+			tablero[i].tipo = tipoCasilla::COMPANY;
+			break;
+		case 13:
+			tablero[i].price = 140;
+			tablero[i].owner = -1;
+			tablero[i].name = "Segunda Rosa";
+			tablero[i].priceEdification = 180;
+			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			break;
+		case 14:
+			tablero[i].price = 160;
+			tablero[i].owner = -1;
+			tablero[i].name = "Tercera Rosa";
+			tablero[i].priceEdification = 200;
+			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			break;
+		case 15:
+			tablero[i].price = 200;
+			tablero[i].owner = -1;
+			tablero[i].name = "Segunda Estacion";
+			tablero[i].tipo = tipoCasilla::ESTACION;
+			break;
+		case 16:
+			tablero[i].price = 180;
+			tablero[i].owner = -1;
+			tablero[i].name = "Primera Naranja";
+			tablero[i].priceEdification = 220;
+			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			break;
+		case 17:
+			tablero[i].tipo = tipoCasilla::FREEMONEY;
+			break;
+		case 18:
+			tablero[i].price = 180;
+			tablero[i].owner = -1;
+			tablero[i].name = "Segunda Naranja";
+			tablero[i].priceEdification = 220;
+			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			break;
+		case 19:
+			tablero[i].price = 200;
+			tablero[i].owner = -1;
+			tablero[i].name = "Tercera Naranja";
+			tablero[i].priceEdification = 240;
+			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			break;
+		case 20:
+			tablero[i].tipo = tipoCasilla::NEUTRA;
+			break;
+		case 21:
+			tablero[i].price = 220;
+			tablero[i].owner = -1;
+			tablero[i].name = "Primera Roja";
+			tablero[i].priceEdification = 260;
+			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			break;
+		case 22:
+			tablero[i].tipo = tipoCasilla::FREEMONEY;
+			break;
+		case 23:
+			tablero[i].price = 220;
+			tablero[i].owner = -1;
+			tablero[i].name = "Segunda Roja";
+			tablero[i].priceEdification = 260;
+			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			break;
+		case 24:
+			tablero[i].price = 240;
+			tablero[i].owner = -1;
+			tablero[i].name = "Tercera Roja";
+			tablero[i].priceEdification = 280;
+			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			break;
+		case 25:
+			tablero[i].price = 200;
+			tablero[i].owner = -1;
+			tablero[i].name = "Tercera Estacion";
+			tablero[i].tipo = tipoCasilla::ESTACION;
+			break;
+		case 26:
+			tablero[i].price = 260;
+			tablero[i].owner = -1;
+			tablero[i].name = "Primera Amarilla";
+			tablero[i].priceEdification = 300;
+			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			break;
+		case 27:
+			tablero[i].price = 260;
+			tablero[i].owner = -1;
+			tablero[i].name = "Segunda Amarilla";
+			tablero[i].priceEdification = 300;
+			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			break;
+		case 28:
+			tablero[i].price = 150;
+			tablero[i].owner = -1;
+			tablero[i].name = "Agua";
+			tablero[i].tipo = tipoCasilla::COMPANY;
+			break;
+		case 29:
+			tablero[i].price = 280;
+			tablero[i].owner = -1;
+			tablero[i].name = "Tercera Amarilla";
+			tablero[i].priceEdification = 320;
+			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			break;
+		case 30:
+			tablero[i].tipo = tipoCasilla::JAIL;
+			break;
+		case 31:
+			tablero[i].price = 300;
+			tablero[i].owner = -1;
+			tablero[i].name = "Primera Verde";
+			tablero[i].priceEdification = 340;
+			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			break;
+		case 32:
+			tablero[i].price = 300;
+			tablero[i].owner = -1;
+			tablero[i].name = "Segunda Verde";
+			tablero[i].priceEdification = 340;
+			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			break;
+		case 33:
+			tablero[i].tipo = tipoCasilla::FREEMONEY;
+			break;
+		case 34:
+			tablero[i].price = 320;
+			tablero[i].owner = -1;
+			tablero[i].name = "Tercera Verde";
+			tablero[i].priceEdification = 340;
+			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			break;
+		case 35:
+			tablero[i].price = 200;
+			tablero[i].owner = -1;
+			tablero[i].name = "Cuarta Estacion";
+			tablero[i].tipo = tipoCasilla::ESTACION;
+			break;
+		case 36:
+			tablero[i].tipo = tipoCasilla::FREEMONEY;
+			break;
+		case 37:
+			tablero[i].price = 350;
+			tablero[i].owner = -1;
+			tablero[i].name = "Primera Azul";
+			tablero[i].priceEdification = 390;
+			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			break;
+		case 38:
+			tablero[i].price = 100;
+			tablero[i].tipo = tipoCasilla::TAX;
+			break;
+		case 39:
+			tablero[i].price = 400;
+			tablero[i].owner = -1;
+			tablero[i].name = "Segunda Azul";
+			tablero[i].priceEdification = 440;
+			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			break;		
+		default:
+			break;
 		}
 	}
 }
-
-//Peer-To-Peer
-
 
 
 int main()
@@ -166,8 +410,8 @@ int main()
 	/*std::thread t(&ControlServer);
 	t.detach();*/
 
-	//VECTOR DE PLAYES
-	std::vector<PlayerInfo> players;
+	//Board
+	initializeBoard();
 
 	//VARIABLES JUEGO
 	PlayerInfo playerInfo;
@@ -176,6 +420,7 @@ int main()
 	
 	//Ordenes
 	int order;
+	bool haveToSend = false;
 
 	//BUCLE DE JUEGO
 	while (running)
@@ -264,37 +509,51 @@ int main()
 									dice1 = rand() % 6 + 1;
 									dice2 = rand() % 6 + 1;
 									resultDices = dice1 + dice2;
-									casillasTotales = resultDices / 10;
-
-									//CASO HORIZONTAL (CASILLAS DE ABAJO)
-									if (casillasTotales < 1)
+									//casillasTotales = resultDices / 10;
+									players[indexTurn].casilla += 5;
+									if (players[indexTurn].casilla > 39)
 									{
-										//NO SUPERA LAS 10 CASILLAS
-										players[indexTurn].position.x = players[indexTurn].position.x - (51 * resultDices);
+										if (players[indexTurn].casilla == 40)
+										{
+											players[indexTurn].casilla = 0;
+										}
+										else
+										{
+											players[indexTurn].casilla = (players[indexTurn].casilla % 40);
+										}
 									}
-									else
-									{
-										//SUPERA LAS 10 CASILLAS
-										players[indexTurn].position.x = players[indexTurn].position.x - (51 * 10);
-
-										//CUANTAS CASILLAS SUPERA DE 10
-										MoveSquares = resultDices % 10;
-										players[indexTurn].position.y = players[indexTurn].position.y - (51 * MoveSquares);
-									}
-
-									//CASO HORIZONTAL (CASILLAS DE ARRIBA)
-
-									//CASO VERTICAL (CASILLAS DE IZQUIERDA)
-
-									//CASO VERTICAL (CASILLAS DE DERECHA)
-
-									//ENVIAMOS LA POSICION
-
+									//CALCULAMOS POSICION SEGUN LA CASILLA
+									auxPosition = PositionCasilla(players[indexTurn].casilla);
+									//rellenamos pack
+									packSend.clear();
+									packSend << Ordenes::ResultDice;
+									packSend << indexTurn;
+									packSend << players[indexTurn].casilla;
+									packSend << auxPosition.x;
+									packSend << auxPosition.y;
+									//Ponemos a true bool para enviar
+									haveToSend = true;
 									break;
 								case 2:
 									break;
 								case 3:
 									break;
+								}
+
+								if (haveToSend)
+								{
+
+									for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
+									{
+										sf::TcpSocket& client = **it;
+										status = client.send(packSend);
+										if (status == sf::Socket::Done)
+										{
+											std::cout << "Paquete Enviado " << std::endl;
+										}
+									}
+									
+									haveToSend = false;
 								}
 
 								//NUMERO DE JUGADORES EN PARTIDA
@@ -352,6 +611,7 @@ int main()
 												}
 
 												packSend << players[i].isYourTurn;
+												packSend << players[i].casilla;
 												
 												std::cout << players[i].name << std::endl;
 												std::cout << players[i].position.x << std::endl;
