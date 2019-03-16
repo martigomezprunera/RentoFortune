@@ -9,7 +9,7 @@
 #include <SFML/Network.hpp>
 
 //CONSTANTES
-#define PORT 50000
+#define PORT 50001
 #define IP "127.0.0.1"
 
 //Variables Globales
@@ -19,6 +19,8 @@ bool StartedGame = false;
 sf::Packet packet;
 sf::TcpListener listener;
 sf::Socket::Status status;
+//NumTurn
+int indexTurn;
 
 //Lista para guardar los sockets
 std::list<sf::TcpSocket*> clients;
@@ -107,7 +109,6 @@ void ControlServer()
 						{
 							packReceive >> order;
 							std::cout << "He recibido la orden" << order << " del puerto " << client.getRemotePort() << std::endl;
-
 							switch (order)
 							{
 							case 0:
@@ -159,6 +160,9 @@ int main()
 	int NumJugadores;
 	int counterPlayer = 0;
 	
+	//Ordenes
+	int order;
+
 	//BUCLE DE JUEGO
 	while (running)
 	{
@@ -208,7 +212,6 @@ int main()
 							// The client has sent some data, we can receive it
 							sf::Packet packReceive;
 							sf::Packet packSend;
-							int order;
 							status = client.receive(packReceive);
 							if (status == sf::Socket::Done)
 							{
@@ -218,7 +221,7 @@ int main()
 
 								switch (order)
 								{
-								case 0:
+								case 0://CreatePlayer///////
 									counterPlayer++;
 									packReceive >> playerInfo.name;
 									playerInfo.id = counterPlayer;
@@ -240,7 +243,9 @@ int main()
 									}*/
 
 									break;
-								case 1:
+								case 1://ThrowDice///////
+									packReceive >> indexTurn;
+									std::cout << indexTurn << std::endl;
 									break;
 								case 2:
 									break;
@@ -252,6 +257,7 @@ int main()
 								NumJugadores = players.size();
 								if (NumJugadores == 4)
 								{
+
 									for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
 									{
 										sf::TcpSocket& client = **it;
@@ -266,11 +272,43 @@ int main()
 											{
 												packSend << players[i].id;
 												packSend << players[i].name;
+
+												switch (i)
+												{
+												case 0:
+													players[i].position.x = 550;
+													players[i].position.y = 545;
+													break;
+												case 1:
+													players[i].position.x = 525;
+													players[i].position.y = 570;
+													break;
+												case 2:
+													players[i].position.x = 550;
+													players[i].position.y = 570;
+													break;
+												case 3:
+													players[i].position.x = 575;
+													players[i].position.y = 570;
+													break;
+												}
+
 												packSend << players[i].position.x;
 												packSend << players[i].position.y;
 												packSend << players[i].money;
-												packSend << players[i].isYourTurn;
+												//SI ES EL JUGADOR ID 1 EMPIEZA
+												if (i == 0) 
+												{
+													players[i].isYourTurn = true;
+												}
+												//SI NO ES EL JUGADOR ID 1 NO EMPIEZA
+												else
+												{
+													players[i].isYourTurn = false;
+												}
 
+												packSend << players[i].isYourTurn;
+												
 												std::cout << players[i].name << std::endl;
 												std::cout << players[i].position.x << std::endl;
 												std::cout << players[i].position.y << std::endl;
@@ -286,7 +324,6 @@ int main()
 												std::cout << "He enviado la informacion de los jugadores" << std::endl;
 												std::cout << "He enviado que empiece el juego" << std::endl;
 											}
-
 										}
 									}
 									StartedGame = true;

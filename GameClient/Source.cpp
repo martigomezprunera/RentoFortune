@@ -10,7 +10,7 @@
 #include <SFML/Network.hpp>
 
 //CONSTANTES
-#define PORT 50000
+#define PORT 50001
 #define IP "127.0.0.1"
 
 //VARIABLES GLOBALES
@@ -24,10 +24,14 @@ std::vector<PlayerInfo> players;
 int VectorPlayersSize;
 int indexPlayer;
 
+//Vector2 mouse
+sf::Vector2<int> mousePos;
+
 //ENUM (ORDENES DEL CLIENTE)
 enum Ordenes
 {
-	CreatePlayer
+	CreatePlayer,
+	ThrowDices
 };
 
 //OVERCHARGED FUNCTIONS (PLAYER INFO)
@@ -39,6 +43,7 @@ sf::Packet& operator <<(sf::Packet& packet, const PlayerInfo& playerInfo)
 sf::Packet& operator <<(sf::Packet& packet, const Ordenes& orders)
 {
 	int option = static_cast<int>(orders);
+	std::cout << option << std::endl;
 	return packet << option;
 }
 
@@ -85,16 +90,18 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 		}
 		startGame = true;
 	}
+
 	while (running)
 	{
-		/*for (int i = 0; i < VectorPlayersSize; i++)
+		for (int i = 0; i < VectorPlayersSize; i++)
 		{
+			std::cout << players[i].id << std::endl;
 			std::cout << players[i].name << std::endl;
 			std::cout << players[i].position.x << std::endl;
 			std::cout << players[i].position.y << std::endl;
 			std::cout << players[i].money << std::endl;
 			std::cout << players[i].isYourTurn << std::endl;
-		}*/
+		}
 
 		status = sock->receive(packReceive);
 		if (status == sf::Socket::Done)
@@ -103,7 +110,6 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 			switch (order)
 			{
 			case 0:
-
 				break;
 			case 1:
 				break;
@@ -177,6 +183,26 @@ int main()
 	rectangleLobby.setPosition(500 - 200, 400 - 150);
 	rectangleLobby.setSize(sf::Vector2f(400, 100));
 
+	////////////// --- BUTTONMYTURN --- ////////////
+	sf::RectangleShape buttonMyTurn(sf::Vector2f(100, 50));
+	buttonMyTurn.setFillColor(sf::Color(255, 165, 0, 255));
+	buttonMyTurn.setOutlineThickness(5);
+	buttonMyTurn.setOutlineColor(sf::Color(255, 165, 0, 255));
+	buttonMyTurn.setPosition(900, 750);
+	//--- Text Throw Dices ---//
+	sf::Text TextThrowDiecs("Throw Dices", fontCourbd, 10);
+	TextThrowDiecs.setFillColor(sf::Color(0, 0, 0));
+	TextThrowDiecs.setPosition(910, 765);
+	TextThrowDiecs.setStyle(sf::Text::Bold);
+
+
+	////////////// --- BUTTONNOTMYTURN --- ////////////
+	sf::RectangleShape buttonNotMyTurn(sf::Vector2f(100, 50));
+	buttonNotMyTurn.setFillColor(sf::Color(120, 120, 120, 255));
+	buttonNotMyTurn.setOutlineThickness(5);
+	buttonNotMyTurn.setOutlineColor(sf::Color(120, 120, 120, 255));
+	buttonNotMyTurn.setPosition(900, 750);
+
 	/////////// --- BACKGROUND LOBBY --- //////////
 	sf::Texture textureLobby;
 	if (!textureLobby.loadFromFile("backgroundLobby.jpg"))
@@ -203,8 +229,11 @@ int main()
 	//ENVIAMOS INFO DEL JUGADOR
 	pack << Ordenes::CreatePlayer;
 	pack << aliasName;
-	sock.send(pack);
-
+	status=sock.send(pack);
+	if (status == sf::Socket::Done)
+	{
+		std::cout<<"He enviado mi info al servidor"<<std::endl;
+	}
 	//ESPERANDO A QUE SE CONECTEN 4 JUGADORES
 	while (!startGame)
 	{
@@ -279,7 +308,7 @@ int main()
 			myPlayerMoney.setStyle(sf::Text::Bold);
 
 			//CIRCLE TOKEN
-			myPlayerToken.setPosition(550, 545);
+			myPlayerToken.setPosition(players[i].position.x, players[i].position.y);
 			myPlayerToken.setFillColor(sf::Color(255, 0, 0));
 			myPlayerToken.setOutlineThickness(2);
 			myPlayerToken.setOutlineColor(sf::Color(0, 0, 0));
@@ -303,7 +332,7 @@ int main()
 				Player1Money.setStyle(sf::Text::Bold);
 
 				//CIRCLE TOKEN
-				Player1Token.setPosition(525, 570);
+				Player1Token.setPosition(players[i].position.x, players[i].position.y);
 				Player1Token.setFillColor(sf::Color(0, 255, 0));
 				Player1Token.setOutlineThickness(2);
 				Player1Token.setOutlineColor(sf::Color(0, 0, 0));
@@ -323,7 +352,7 @@ int main()
 				Player2Money.setStyle(sf::Text::Bold);
 
 				//CIRCLE TOKEN
-				Player2Token.setPosition(550, 570);
+				Player2Token.setPosition(players[i].position.x, players[i].position.y);
 				Player2Token.setFillColor(sf::Color(0, 0, 255));
 				Player2Token.setOutlineThickness(2);
 				Player2Token.setOutlineColor(sf::Color(0, 0, 0));
@@ -343,7 +372,7 @@ int main()
 				Player3Money.setStyle(sf::Text::Bold);
 
 				//CIRCLE TOKEN
-				Player3Token.setPosition(575, 570);
+				Player3Token.setPosition(players[i].position.x, players[i].position.y);
 				Player3Token.setFillColor(sf::Color(128, 128, 255));
 				Player3Token.setOutlineThickness(2);
 				Player3Token.setOutlineColor(sf::Color(0, 0, 0));
@@ -362,34 +391,62 @@ int main()
 			switch (evento.type)
 			{
 			case sf::Event::Closed:
-
-
 				break;
 			case sf::Event::KeyPressed:
 				if (evento.key.code == sf::Keyboard::Escape)
-
 					window.close();
 				else if (evento.key.code == sf::Keyboard::Return)
 				{
 					
 				}
-				break;
+				break;		
+				case sf::Event::MouseButtonPressed:
+					if (evento.mouseButton.button == sf::Mouse::Left)
+					{
+						if (players[indexPlayer].isYourTurn)
+						{
+							std::cout << "the right button was pressed" << std::endl;
+							std::cout << "mouse x: " << evento.mouseButton.x << std::endl;
+							std::cout << "mouse y: " << evento.mouseButton.y << std::endl;
+							//Preparamos pack
+							pack.clear();
+							pack << Ordenes::ThrowDices;		
+							pack << indexPlayer;
+							status = sock.send(pack);
+							if (status == sf::Socket::Done)
+							{
+								//std::cout << indexPlayer << std::endl;
+							}
+						}
+					}
+					break;
+
 			}
 		}
 
+		//CONTROL MOUSE
+		/*if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+		{
+			mousePos = sf::Mouse::getPosition();
+			if ((mousePos.x>800)&&(mousePos.y > 600))
+			{
+				std::cout << "LLego" << std::endl;
+			}
+		}*/
 		//DRAW 
 		//TEXT 
 		window.draw(myPlayer);
 		window.draw(Player1Text);
 		window.draw(Player2Text);
 		window.draw(Player3Text);
-
+		
 		//MONEY
 		window.draw(myPlayerMoney);
 		window.draw(Player1Money);
 		window.draw(Player2Money);
 		window.draw(Player3Money);
 
+		//BOARD
 		window.draw(spriteBoard);
 
 		//TOKENs
@@ -398,9 +455,24 @@ int main()
 		window.draw(Player2Token);
 		window.draw(Player3Token);
 
+		//BUTTON
+		//SI E TU TURNO
+		if (players[indexPlayer].isYourTurn)
+		{
+			window.draw(buttonMyTurn);
+			
+		}
+		else 
+		{
+			window.draw(buttonNotMyTurn);
+		}
+		//TextThrowDices
+		window.draw(TextThrowDiecs);
+
 		//PANTALLA DE JUEGO
 		window.display();
 		window.clear();
+	
 	}
 
 	return 0;
