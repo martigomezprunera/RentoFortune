@@ -36,6 +36,7 @@ struct casilla
 	int priceEdification;
 	int mortgageValue;
 	int owner;
+	int priceToCharge = 50;
 };
 
 //Variables Globales
@@ -153,6 +154,10 @@ sf::Vector2<int> PositionCasilla(int numCasilla)
 		auxVec.y = 40 + (aux * 51);
 	}
 	return auxVec;
+}
+int getTypeCasilla(int numCasilla)
+{
+	return tablero[numCasilla].tipo;
 }
 //Funcion tablero
 void initializeBoard()
@@ -396,7 +401,6 @@ void initializeBoard()
 	}
 }
 
-
 int main()
 {
 	//RANDOM
@@ -421,7 +425,7 @@ int main()
 	//Ordenes
 	int order;
 	bool haveToSend = false;
-
+	bool auxPlayerBuy=false;
 	//BUCLE DE JUEGO
 	while (running)
 	{
@@ -503,8 +507,7 @@ int main()
 
 									break;
 								case 1://ThrowDice///////
-									packReceive >> indexTurn;
-									
+									packReceive >> indexTurn;									
 									//RANDOM DICES
 									dice1 = rand() % 6 + 1;
 									dice2 = rand() % 6 + 1;
@@ -531,10 +534,75 @@ int main()
 									packSend << players[indexTurn].casilla;
 									packSend << auxPosition.x;
 									packSend << auxPosition.y;
+									packSend << tablero[players[indexTurn].casilla].tipo;
+									switch (getTypeCasilla(players[indexTurn].casilla))
+									{
+										case 0://Propiedad
+											packSend << tablero[players[indexTurn].casilla].owner;
+											if (tablero[players[indexTurn].casilla].owner==-1)//Casilla sin dueño
+											{
+											//Se envia una pregunta para comprar
+											}
+											else 
+										{
+											//Se le envia la cantidad de dinero que le queda y al jugador beneficiado la suya
+										}
+											break;
+										case 1://Estacion
+											packSend << tablero[players[indexTurn].casilla].owner;
+											if (tablero[players[indexTurn].casilla].owner == -1)//Casilla sin dueño
+											{
+											//Se envia una pregunta para comprar
+												packSend << tablero[players[indexTurn].casilla].price;
+												std::cout << "price: " << tablero[players[indexTurn].casilla].price;
+												//Enviar precio al que cobras
+											}
+											else
+											{
+												//Se le envia la cantidad de dinero que le queda y al jugador beneficiado la suya												
+											}
+											break;
+										case 2://Neutra
+											break;
+										case 3://FreeMoney
+											//RandomMoneyToGive y enviar que cantidad tiene ahora
+											break;
+										case 4://Tax
+											//Envio de cantidad que le queda al jugador
+											break;
+										case 5://Jail
+											//Se le informa de que estara en la carcel x turnos si no paga
+											break;
+										case 6://Company
+											packSend << tablero[players[indexTurn].casilla].owner;
+											if (tablero[players[indexTurn].casilla].owner == -1)//Casilla sin dueño
+										{
+											//Se envia una pregunta para comprar
+										}
+											else
+										{
+											//Se le envia la cantidad de dinero que le queda y al jugador beneficiado la suya
+										}
+											break;
+										default:
+											break;
+									}					
 									//Ponemos a true bool para enviar
 									haveToSend = true;
 									break;
-								case 2:
+								case 2://DecideBUY
+									packReceive >> indexTurn;
+									packReceive >> auxPlayerBuy;
+									std::cout << "playerBuy: " << auxPlayerBuy << std::endl;
+									if (auxPlayerBuy)
+									{
+										
+										tablero[players[indexTurn].casilla].owner = indexTurn;										
+									}
+									else
+									{
+
+									}
 									break;
 								case 3:
 									break;
@@ -613,6 +681,7 @@ int main()
 												packSend << players[i].isYourTurn;
 												packSend << players[i].casilla;
 												
+
 												std::cout << players[i].name << std::endl;
 												std::cout << players[i].position.x << std::endl;
 												std::cout << players[i].position.y << std::endl;

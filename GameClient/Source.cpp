@@ -17,11 +17,27 @@
 //#define PORT 50000
 #define IP "127.0.0.1"
 
+//ENUM (ORDENES DEL CLIENTE)
+enum Ordenes
+{
+	CreatePlayer,
+	ThrowDices,
+	DecideBuy
+};
+
+enum Acciones
+{
+	NONE,
+	PUEDOCOMPRAR
+};
+
 //VARIABLES GLOBALES
 bool running = true;
 bool startGame = false;
 sf::Socket::Status status;
 sf::Mutex mtx;
+Acciones accion = Acciones::NONE;
+int owner=-1;
 
 //VECTOR PLAYER
 std::vector<PlayerInfo> players;
@@ -34,18 +50,16 @@ sf::Text Player1Money;
 sf::Text Player2Money;
 sf::Text Player3Money;
 
+//Aux buy
+sf::Text propiertyToBuy;
+
+
 //CIRCLE TOKEN
 sf::CircleShape playerTokens[4];
 
 //Vector2 mouse
 sf::Vector2<int> mousePos;
 
-//ENUM (ORDENES DEL CLIENTE)
-enum Ordenes
-{
-	CreatePlayer,
-	ThrowDices
-};
 
 //OVERCHARGED FUNCTIONS (PLAYER INFO)
 sf::Packet& operator <<(sf::Packet& packet, const PlayerInfo& playerInfo)
@@ -75,6 +89,8 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 	bool auxIsYourTurn;
 	int auxId;
 	int auxCasilla;
+	int auxTipo = -1;
+	int auxPrecioPropiedad;
 	//RECIBIMOS LA INFORMACION DE TODOS LOS JUGADORES
 	status=sock->receive(packReceive);
 	if (status == sf::Socket::Done) 
@@ -109,7 +125,7 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 		}
 		startGame = true;
 	}
-
+	//JUEGO//////////////////////////////////////////////////////////////////
 	while (running)
 	{
 		/*for (int i = 0; i < VectorPlayersSize; i++)
@@ -135,11 +151,70 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 				packReceive >> auxCasilla;
 				packReceive >> auxPositionX;
 				packReceive >> auxPositionY;
+				if (players[indexPlayer].isYourTurn == true)
+				{
+				packReceive >> auxTipo;								
+				switch (auxTipo)
+				{
+				case 0://Propiedad
+					packReceive >> owner;
+					if (owner == -1)
+					{
+						//pregunto si quiero comprar
+					}
+					else 
+					{
+						//Actualizo mi dinero y el del propietario
+					}
+					break;
+				case 1://Estacion
+					packReceive >> owner;
+					if (owner == -1)
+					{
+						packReceive >> auxPrecioPropiedad;
+						//pregunto si quiero comprar
+						std::cout << auxPrecioPropiedad << std::endl;
+						propiertyToBuy.setString(std::to_string(auxPrecioPropiedad));
+						accion = Acciones::PUEDOCOMPRAR;
+					}
+					else
+					{
+						//Actualizo mi dinero y el del propietario
+					}
+					break;
+				case 2://Neutra
+					break;
+				case 3://FreeMoney
+					break;
+				case 4://Tax
+					break;
+				case 5://Jail
+					break;
+				case 6://Company
+					packReceive >> owner;
+					if (owner == -1)
+					{
+						//pregunto si quiero comprar
+					}
+					else 
+					{
+						//Actualizo mi dinero y el del propietario
+					}
+					break;
+				default:
+					break;
+				}
+				}
+				else 
+				{
+					//Limpiamos pack
+					packReceive.clear();
+				}
 				//Actualizamos Player que ha tirado//////
 				players[auxId].casilla = auxCasilla;
 				players[auxId].position.x = auxPositionX;
 				players[auxId].position.y = auxPositionY;
-				playerTokens[auxId].setPosition(players[auxId].position.x, players[auxId].position.y);
+				playerTokens[auxId].setPosition(players[auxId].position.x, players[auxId].position.y);				
 				break;
 			case 2:
 				break;
@@ -211,20 +286,50 @@ int main()
 	rectangleLobby.setPosition(500 - 200, 400 - 150);
 	rectangleLobby.setSize(sf::Vector2f(400, 100));
 
-	////////////// --- BUTTONMYTURN --- ////////////
+	////////////// --- BUTTON MY TURN --- ////////////
 	sf::RectangleShape buttonMyTurn(sf::Vector2f(100, 50));
 	buttonMyTurn.setFillColor(sf::Color(255, 165, 0, 255));
 	buttonMyTurn.setOutlineThickness(5);
 	buttonMyTurn.setOutlineColor(sf::Color(255, 165, 0, 255));
 	buttonMyTurn.setPosition(900, 750);
 	//--- Text Throw Dices ---//
-	sf::Text TextThrowDiecs("Throw Dices", fontCourbd, 10);
-	TextThrowDiecs.setFillColor(sf::Color(0, 0, 0));
-	TextThrowDiecs.setPosition(910, 765);
-	TextThrowDiecs.setStyle(sf::Text::Bold);
+	sf::Text TextThrowDices("Throw Dices", fontCourbd, 10);
+	TextThrowDices.setFillColor(sf::Color(0, 0, 0));
+	TextThrowDices.setPosition(910, 765);
+	TextThrowDices.setStyle(sf::Text::Bold);
 
+	//--- Text I wnt to Buy---//
+	sf::Text TextBuy("Buy!", fontCourbd, 14);
+	TextBuy.setFillColor(sf::Color(0, 0, 0));
+	TextBuy.setPosition(910, 765);
+	TextBuy.setStyle(sf::Text::Bold);
 
-	////////////// --- BUTTONNOTMYTURN --- ////////////
+	//TEXT DISPLAY PRICE AND NAMEPROPIERTY///////////////propiertyToBuy
+	//text price
+	propiertyToBuy = { "Price!", fontCourbd, 40 };
+	propiertyToBuy.setFillColor(sf::Color(0, 0, 0));
+	propiertyToBuy.setPosition(280, 300);
+	propiertyToBuy.setStyle(sf::Text::Bold);
+	//rectangle 
+	sf::RectangleShape rectPrice(sf::Vector2f(100, 50));
+	rectPrice.setFillColor(sf::Color(255, 165, 0, 255));
+	rectPrice.setOutlineThickness(5);
+	rectPrice.setOutlineColor(sf::Color(255, 165, 0, 255));
+	rectPrice.setPosition(270, 295);
+
+	//text ButtonNotBuy
+	sf::Text TextNotBuy("Not Buy", fontCourbd, 14);
+	TextNotBuy.setFillColor(sf::Color(0, 0, 0));
+	TextNotBuy.setPosition(5, 765);
+	TextNotBuy.setStyle(sf::Text::Bold);
+	//RectangleNotBuy
+	sf::RectangleShape ButtonNotBuy(sf::Vector2f(100, 50));
+	ButtonNotBuy.setFillColor(sf::Color(255, 165, 0, 255));
+	ButtonNotBuy.setOutlineThickness(5);
+	ButtonNotBuy.setOutlineColor(sf::Color(255, 165, 0, 255));
+	ButtonNotBuy.setPosition(0, 750);
+
+	////////////// --- BUTTON NOT MY TURN --- ////////////
 	sf::RectangleShape buttonNotMyTurn(sf::Vector2f(100, 50));
 	buttonNotMyTurn.setFillColor(sf::Color(120, 120, 120, 255));
 	buttonNotMyTurn.setOutlineThickness(5);
@@ -423,7 +528,7 @@ int main()
 						std::cout << "the right button was pressed" << std::endl;
 						std::cout << "mouse x: " << evento.mouseButton.x << std::endl;
 						std::cout << "mouse y: " << evento.mouseButton.y << std::endl;
-						if (players[indexPlayer].isYourTurn)
+						if ((players[indexPlayer].isYourTurn==true) && (accion==Acciones::NONE))
 						{							
 							
 							if ((evento.mouseButton.x > 900) && (evento.mouseButton.y > 750))
@@ -439,6 +544,35 @@ int main()
 								}
 							}
 							
+						}
+						if ((players[indexPlayer].isYourTurn == true) && (accion == Acciones::PUEDOCOMPRAR))
+						{
+							if ((evento.mouseButton.x < 100) && (evento.mouseButton.y > 750))
+							{
+								//Preparamos pack
+								pack.clear();
+								pack << Ordenes::DecideBuy;
+								pack << indexPlayer;
+								pack << 0;
+								status = sock.send(pack);
+								if (status == sf::Socket::Done)
+								{
+									//std::cout << indexPlayer << std::endl;
+								}
+							}
+							else if ((evento.mouseButton.x > 900) && (evento.mouseButton.y > 750))
+							{
+								pack.clear();
+								pack << Ordenes::DecideBuy;
+								pack << indexPlayer;
+								pack << true;
+								status = sock.send(pack);
+								if (status == sf::Socket::Done)
+								{
+									std::cout <<"Player send " << indexPlayer << std::endl;
+								}
+								accion = Acciones::NONE;
+							}
 						}
 					}
 					break;
@@ -489,8 +623,20 @@ int main()
 			window.draw(buttonNotMyTurn);
 		}
 		//TextThrowDices
-		window.draw(TextThrowDiecs);
-
+		if(accion==Acciones::NONE)
+			window.draw(TextThrowDices);
+		else if (accion == Acciones::PUEDOCOMPRAR)
+		{
+			//Buy text
+			window.draw(TextBuy);
+			//Price
+			window.draw(rectPrice);
+			window.draw(propiertyToBuy);
+			//Button not to buy
+			window.draw(ButtonNotBuy);
+			window.draw(TextNotBuy);
+			
+		}
 		//PANTALLA DE JUEGO
 		window.display();
 		window.clear();
