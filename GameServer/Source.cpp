@@ -70,7 +70,10 @@ sf::SocketSelector selector;
 enum Ordenes
 {
 	StartGame,
-	ResultDice
+	ResultDice,
+	UpdateMoney,
+	NewTurn,
+	Charge
 };
 
 //OVERCHARGED FUNCTIONS (PLAYER INFO)
@@ -176,6 +179,7 @@ void initializeBoard()
 			tablero[i].name = "Primera Marron";
 			tablero[i].priceEdification = 100;
 			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			tablero[i].priceToCharge = 2;
 			break;
 		case 2:
 			tablero[i].tipo = tipoCasilla::FREEMONEY;
@@ -186,16 +190,19 @@ void initializeBoard()
 			tablero[i].name = "Segunda Marron";
 			tablero[i].priceEdification = 100;
 			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			tablero[i].priceToCharge = 4;
 			break;
 		case 4:
-			tablero[i].price = 100;
+			//tablero[i].price = 100;
 			tablero[i].tipo = tipoCasilla::TAX;
+			tablero[i].priceToCharge = 200;
 			break;
 		case 5:
 			tablero[i].price = 200;
 			tablero[i].owner = -1;
 			tablero[i].name = "Primera Estacion";
 			tablero[i].tipo = tipoCasilla::ESTACION;
+			tablero[i].priceToCharge = 50;
 			break;
 		case 6:
 			tablero[i].price = 100;
@@ -203,6 +210,7 @@ void initializeBoard()
 			tablero[i].name = "Primera Azul";
 			tablero[i].priceEdification = 140;
 			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			tablero[i].priceToCharge = 6;
 			break;
 		case 7:
 			tablero[i].tipo = tipoCasilla::FREEMONEY;
@@ -213,6 +221,7 @@ void initializeBoard()
 			tablero[i].name = "Segunda Azul";
 			tablero[i].priceEdification = 140;
 			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			tablero[i].priceToCharge = 6;
 			break;
 		case 9:
 			tablero[i].price = 120;
@@ -220,6 +229,7 @@ void initializeBoard()
 			tablero[i].name = "Tercera Azul";
 			tablero[i].priceEdification = 160;
 			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			tablero[i].priceToCharge = 8;
 			break;
 		case 10:
 			tablero[i].tipo = tipoCasilla::NEUTRA;
@@ -230,12 +240,14 @@ void initializeBoard()
 			tablero[i].name = "Primera Rosa";
 			tablero[i].priceEdification = 180;
 			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			tablero[i].priceToCharge = 10;
 			break;
 		case 12:
 			tablero[i].price = 150;
 			tablero[i].owner = -1;
 			tablero[i].name = "Luz";
 			tablero[i].tipo = tipoCasilla::COMPANY;
+			tablero[i].priceToCharge = 4;
 			break;
 		case 13:
 			tablero[i].price = 140;
@@ -243,6 +255,7 @@ void initializeBoard()
 			tablero[i].name = "Segunda Rosa";
 			tablero[i].priceEdification = 180;
 			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			tablero[i].priceToCharge = 10;
 			break;
 		case 14:
 			tablero[i].price = 160;
@@ -250,12 +263,14 @@ void initializeBoard()
 			tablero[i].name = "Tercera Rosa";
 			tablero[i].priceEdification = 200;
 			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			tablero[i].priceToCharge = 12;
 			break;
 		case 15:
 			tablero[i].price = 200;
 			tablero[i].owner = -1;
 			tablero[i].name = "Segunda Estacion";
 			tablero[i].tipo = tipoCasilla::ESTACION;
+			tablero[i].priceToCharge = 50;
 			break;
 		case 16:
 			tablero[i].price = 180;
@@ -263,6 +278,7 @@ void initializeBoard()
 			tablero[i].name = "Primera Naranja";
 			tablero[i].priceEdification = 220;
 			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			tablero[i].priceToCharge = 14;
 			break;
 		case 17:
 			tablero[i].tipo = tipoCasilla::FREEMONEY;
@@ -273,6 +289,7 @@ void initializeBoard()
 			tablero[i].name = "Segunda Naranja";
 			tablero[i].priceEdification = 220;
 			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			tablero[i].priceToCharge = 14;
 			break;
 		case 19:
 			tablero[i].price = 200;
@@ -280,6 +297,7 @@ void initializeBoard()
 			tablero[i].name = "Tercera Naranja";
 			tablero[i].priceEdification = 240;
 			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			tablero[i].priceToCharge = 16;
 			break;
 		case 20:
 			tablero[i].tipo = tipoCasilla::NEUTRA;
@@ -290,6 +308,7 @@ void initializeBoard()
 			tablero[i].name = "Primera Roja";
 			tablero[i].priceEdification = 260;
 			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			tablero[i].priceToCharge = 18;
 			break;
 		case 22:
 			tablero[i].tipo = tipoCasilla::FREEMONEY;
@@ -300,6 +319,7 @@ void initializeBoard()
 			tablero[i].name = "Segunda Roja";
 			tablero[i].priceEdification = 260;
 			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			tablero[i].priceToCharge = 18;
 			break;
 		case 24:
 			tablero[i].price = 240;
@@ -307,12 +327,14 @@ void initializeBoard()
 			tablero[i].name = "Tercera Roja";
 			tablero[i].priceEdification = 280;
 			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			tablero[i].priceToCharge = 20;
 			break;
 		case 25:
 			tablero[i].price = 200;
 			tablero[i].owner = -1;
 			tablero[i].name = "Tercera Estacion";
 			tablero[i].tipo = tipoCasilla::ESTACION;
+			tablero[i].priceToCharge = 50;
 			break;
 		case 26:
 			tablero[i].price = 260;
@@ -320,6 +342,7 @@ void initializeBoard()
 			tablero[i].name = "Primera Amarilla";
 			tablero[i].priceEdification = 300;
 			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			tablero[i].priceToCharge = 22;
 			break;
 		case 27:
 			tablero[i].price = 260;
@@ -327,12 +350,14 @@ void initializeBoard()
 			tablero[i].name = "Segunda Amarilla";
 			tablero[i].priceEdification = 300;
 			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			tablero[i].priceToCharge = 22;
 			break;
 		case 28:
 			tablero[i].price = 150;
 			tablero[i].owner = -1;
 			tablero[i].name = "Agua";
 			tablero[i].tipo = tipoCasilla::COMPANY;
+			tablero[i].priceToCharge = 4;
 			break;
 		case 29:
 			tablero[i].price = 280;
@@ -340,6 +365,7 @@ void initializeBoard()
 			tablero[i].name = "Tercera Amarilla";
 			tablero[i].priceEdification = 320;
 			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			tablero[i].priceToCharge = 24;
 			break;
 		case 30:
 			tablero[i].tipo = tipoCasilla::JAIL;
@@ -350,6 +376,7 @@ void initializeBoard()
 			tablero[i].name = "Primera Verde";
 			tablero[i].priceEdification = 340;
 			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			tablero[i].priceToCharge = 26;
 			break;
 		case 32:
 			tablero[i].price = 300;
@@ -357,6 +384,7 @@ void initializeBoard()
 			tablero[i].name = "Segunda Verde";
 			tablero[i].priceEdification = 340;
 			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			tablero[i].priceToCharge = 26;
 			break;
 		case 33:
 			tablero[i].tipo = tipoCasilla::FREEMONEY;
@@ -367,12 +395,14 @@ void initializeBoard()
 			tablero[i].name = "Tercera Verde";
 			tablero[i].priceEdification = 340;
 			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			tablero[i].priceToCharge = 28;
 			break;
 		case 35:
 			tablero[i].price = 200;
 			tablero[i].owner = -1;
 			tablero[i].name = "Cuarta Estacion";
 			tablero[i].tipo = tipoCasilla::ESTACION;
+			tablero[i].priceToCharge = 50;
 			break;
 		case 36:
 			tablero[i].tipo = tipoCasilla::FREEMONEY;
@@ -383,10 +413,12 @@ void initializeBoard()
 			tablero[i].name = "Primera Azul";
 			tablero[i].priceEdification = 390;
 			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			tablero[i].priceToCharge = 35;
 			break;
 		case 38:
 			tablero[i].price = 100;
 			tablero[i].tipo = tipoCasilla::TAX;
+			tablero[i].priceToCharge = 100;
 			break;
 		case 39:
 			tablero[i].price = 400;
@@ -394,6 +426,7 @@ void initializeBoard()
 			tablero[i].name = "Segunda Azul";
 			tablero[i].priceEdification = 440;
 			tablero[i].tipo = tipoCasilla::PROPIEDAD;
+			tablero[i].priceToCharge = 50;
 			break;		
 		default:
 			break;
@@ -421,11 +454,12 @@ int main()
 	PlayerInfo playerInfo;
 	int NumJugadores;
 	int counterPlayer = 0;
-	
+	bool finishTurn = false;
 	//Ordenes
 	int order;
 	bool haveToSend = false;
 	bool auxPlayerBuy=false;
+	int auxMoneyToCharge;
 	//BUCLE DE JUEGO
 	while (running)
 	{
@@ -550,7 +584,7 @@ int main()
 											break;
 										case 1://Estacion
 											packSend << tablero[players[indexTurn].casilla].owner;
-											if (tablero[players[indexTurn].casilla].owner == -1)//Casilla sin dueño
+											if ((tablero[players[indexTurn].casilla].owner == -1) && (players[indexTurn].money> tablero[players[indexTurn].casilla].price))//Casilla sin dueño
 											{
 											//Se envia una pregunta para comprar
 												packSend << tablero[players[indexTurn].casilla].price;
@@ -559,7 +593,13 @@ int main()
 											}
 											else
 											{
-												//Se le envia la cantidad de dinero que le queda y al jugador beneficiado la suya												
+												//Se le envia la cantidad de dinero que le queda y al jugador beneficiado la suya						
+												auxMoneyToCharge = players[indexTurn].money - tablero[players[indexTurn].casilla].priceToCharge;
+												packSend << auxMoneyToCharge;
+												auxMoneyToCharge = players[tablero[players[indexTurn].casilla].owner].money + tablero[players[indexTurn].casilla].priceToCharge;
+												packSend << auxMoneyToCharge;
+												packSend << tablero[players[indexTurn].casilla].owner;
+												finishTurn = true;												
 											}
 											break;
 										case 2://Neutra
@@ -595,17 +635,39 @@ int main()
 									packReceive >> auxPlayerBuy;
 									std::cout << "playerBuy: " << auxPlayerBuy << std::endl;
 									if (auxPlayerBuy)
+									{										
+										tablero[players[indexTurn].casilla].owner = indexTurn;
+										players[indexTurn].money -= tablero[players[indexTurn].casilla].price;
+										//RellenamosSend
+										packSend.clear();
+										packSend << Ordenes::UpdateMoney;										
+										packSend << players[indexTurn].money;										
+										std::cout << "Player decide buy House" << std::endl;										
+									}	
+									else 
 									{
-										
-										tablero[players[indexTurn].casilla].owner = indexTurn;										
+										packSend << Ordenes::NewTurn;
 									}
-									else
-									{
-
-									}
+									haveToSend = true;
+									finishTurn = true;
 									break;
 								case 3:
 									break;
+								}
+
+								if (finishTurn == true)
+								{
+									packSend << indexTurn;
+									players[indexTurn].isYourTurn = false;
+									indexTurn++;
+									if (indexTurn > 3)
+									{
+										indexTurn = 0;										
+									}									
+									players[indexTurn].isYourTurn = true;									
+									packSend << indexTurn;
+									std::cout << "Next Turn id :" << indexTurn;
+									finishTurn = false;									
 								}
 
 								if (haveToSend)
@@ -619,8 +681,7 @@ int main()
 										{
 											std::cout << "Paquete Enviado " << std::endl;
 										}
-									}
-									
+									}									
 									haveToSend = false;
 								}
 

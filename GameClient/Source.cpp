@@ -45,14 +45,10 @@ int VectorPlayersSize;
 int indexPlayer;
 
 //TEXTO Dinero Player
-sf::Text myPlayerMoney;
-sf::Text Player1Money;
-sf::Text Player2Money;
-sf::Text Player3Money;
+sf::Text playerMoney[4];
 
 //Aux buy
 sf::Text propiertyToBuy;
-
 
 //CIRCLE TOKEN
 sf::CircleShape playerTokens[4];
@@ -86,11 +82,14 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 	int auxPositionX;
 	int auxPositionY;
 	int auxMoney;
+	int auxMoney2;
 	bool auxIsYourTurn;
 	int auxId;
 	int auxCasilla;
 	int auxTipo = -1;
 	int auxPrecioPropiedad;
+	int auxNewTurn;
+	int auxIdOwner;
 	//RECIBIMOS LA INFORMACION DE TODOS LOS JUGADORES
 	status=sock->receive(packReceive);
 	if (status == sf::Socket::Done) 
@@ -151,7 +150,7 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 				packReceive >> auxCasilla;
 				packReceive >> auxPositionX;
 				packReceive >> auxPositionY;
-				if (players[indexPlayer].isYourTurn == true)
+				
 				{
 				packReceive >> auxTipo;								
 				switch (auxTipo)
@@ -175,11 +174,27 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 						//pregunto si quiero comprar
 						std::cout << auxPrecioPropiedad << std::endl;
 						propiertyToBuy.setString(std::to_string(auxPrecioPropiedad));
-						accion = Acciones::PUEDOCOMPRAR;
+						if (players[indexPlayer].isYourTurn) 
+						{
+							accion = Acciones::PUEDOCOMPRAR;
+						}
 					}
 					else
 					{
+						packReceive >> auxMoney;
+						packReceive >> auxMoney2;
+						packReceive >> auxIdOwner;
+						packReceive >> auxId;
+						packReceive >> auxNewTurn;
+						//Update
+						players[auxId].money = auxMoney;
+						players[auxIdOwner].money = auxMoney2;
+						players[auxId].isYourTurn = false;
+						players[auxNewTurn].isYourTurn = true;
+						std::cout << "New turn :" << auxNewTurn << std::endl;
 						//Actualizo mi dinero y el del propietario
+						playerMoney[auxId].setString(std::to_string(players[auxId].money).append("$") );
+						playerMoney[auxIdOwner].setString(std::to_string(players[auxIdOwner].money).append("$"));						
 					}
 					break;
 				case 2://Neutra
@@ -204,22 +219,38 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 				default:
 					break;
 				}
-				}
-				else 
-				{
-					//Limpiamos pack
-					packReceive.clear();
-				}
+				}		
+				
 				//Actualizamos Player que ha tirado//////
 				players[auxId].casilla = auxCasilla;
 				players[auxId].position.x = auxPositionX;
 				players[auxId].position.y = auxPositionY;
 				playerTokens[auxId].setPosition(players[auxId].position.x, players[auxId].position.y);				
 				break;
-			case 2:
+			case 2://Actualizar dinero
+				packReceive >> auxMoney;
+				packReceive >> auxId;
+				packReceive >> auxNewTurn;
+				//Update dinero
+				players[auxId].money = auxMoney;
+				players[auxId].isYourTurn = false;
+				players[auxNewTurn].isYourTurn = true;
+				//Update text
+				playerMoney[auxId].setString(std::to_string(players[auxId].money));
+				break;
+			case 3:
+				packReceive >> auxId;
+				packReceive >> auxNewTurn;
+				players[auxId].isYourTurn = false;
+				players[auxNewTurn].isYourTurn = true;
+				break;
+			case 4://Charge
+				
 				break;
 			}
 		}
+		//Limpiamos pack
+		packReceive.clear();
 	}
 }
 
@@ -424,10 +455,10 @@ int main()
 
 			//MONEY
 			CorrectMoney = std::to_string(players[i].money).append("$");
-			myPlayerMoney = { CorrectMoney, fontCourbd, 24 };
-			myPlayerMoney.setFillColor(sf::Color(52, 73, 40));
-			myPlayerMoney.setPosition(50, 680);
-			myPlayerMoney.setStyle(sf::Text::Bold);
+			playerMoney[i] = { CorrectMoney, fontCourbd, 24 };
+			playerMoney[i].setFillColor(sf::Color(52, 73, 40));
+			playerMoney[i].setPosition(50, 680);
+			playerMoney[i].setStyle(sf::Text::Bold);
 
 			//CIRCLE TOKEN
 			playerTokens[i].setPosition(players[i].position.x, players[i].position.y);
@@ -448,10 +479,10 @@ int main()
 
 				//MONEY
 				CorrectMoney = std::to_string(players[i].money).append("$");
-				Player1Money = {CorrectMoney, fontCourbd, 24 };
-				Player1Money.setFillColor(sf::Color(52, 73, 40));
-				Player1Money.setPosition(700, 130);
-				Player1Money.setStyle(sf::Text::Bold);
+				playerMoney[i] = {CorrectMoney, fontCourbd, 24 };
+				playerMoney[i].setFillColor(sf::Color(52, 73, 40));
+				playerMoney[i].setPosition(700, 130);
+				playerMoney[i].setStyle(sf::Text::Bold);
 
 				//CIRCLE TOKEN
 				playerTokens[i].setPosition(players[i].position.x, players[i].position.y);
@@ -468,10 +499,10 @@ int main()
 
 				//MONEY
 				CorrectMoney = std::to_string(players[i].money).append("$");
-				Player2Money = { CorrectMoney, fontCourbd, 24 };
-				Player2Money.setFillColor(sf::Color(52, 73, 40));
-				Player2Money.setPosition(700, 330);
-				Player2Money.setStyle(sf::Text::Bold);
+				playerMoney[i] = { CorrectMoney, fontCourbd, 24 };
+				playerMoney[i].setFillColor(sf::Color(52, 73, 40));
+				playerMoney[i].setPosition(700, 330);
+				playerMoney[i].setStyle(sf::Text::Bold);
 
 				//CIRCLE TOKEN
 				playerTokens[i].setPosition(players[i].position.x, players[i].position.y);
@@ -488,10 +519,10 @@ int main()
 
 				//MONEY
 				CorrectMoney = std::to_string(players[i].money).append("$");
-				Player3Money = { CorrectMoney, fontCourbd, 24 };
-				Player3Money.setFillColor(sf::Color(52, 73, 40));
-				Player3Money.setPosition(700, 530);
-				Player3Money.setStyle(sf::Text::Bold);
+				playerMoney[i] = { CorrectMoney, fontCourbd, 24 };
+				playerMoney[i].setFillColor(sf::Color(52, 73, 40));
+				playerMoney[i].setPosition(700, 530);
+				playerMoney[i].setStyle(sf::Text::Bold);
 
 				//CIRCLE TOKEN
 				playerTokens[i].setPosition(players[i].position.x, players[i].position.y);
@@ -525,9 +556,9 @@ int main()
 				case sf::Event::MouseButtonPressed:
 					if (evento.mouseButton.button == sf::Mouse::Left)
 					{
-						std::cout << "the right button was pressed" << std::endl;
+						/*std::cout << "the right button was pressed" << std::endl;
 						std::cout << "mouse x: " << evento.mouseButton.x << std::endl;
-						std::cout << "mouse y: " << evento.mouseButton.y << std::endl;
+						std::cout << "mouse y: " << evento.mouseButton.y << std::endl;*/
 						if ((players[indexPlayer].isYourTurn==true) && (accion==Acciones::NONE))
 						{							
 							
@@ -547,20 +578,21 @@ int main()
 						}
 						if ((players[indexPlayer].isYourTurn == true) && (accion == Acciones::PUEDOCOMPRAR))
 						{
-							if ((evento.mouseButton.x < 100) && (evento.mouseButton.y > 750))
+							if ((evento.mouseButton.x < 100) && (evento.mouseButton.y > 750))//NoCompramos
 							{
 								//Preparamos pack
 								pack.clear();
 								pack << Ordenes::DecideBuy;
 								pack << indexPlayer;
-								pack << 0;
+								pack << false;
 								status = sock.send(pack);
 								if (status == sf::Socket::Done)
 								{
-									//std::cout << indexPlayer << std::endl;
+									std::cout << "Player send " << indexPlayer << std::endl;
 								}
+								accion = Acciones::NONE;
 							}
-							else if ((evento.mouseButton.x > 900) && (evento.mouseButton.y > 750))
+							else if ((evento.mouseButton.x > 900) && (evento.mouseButton.y > 750))//Compramos
 							{
 								pack.clear();
 								pack << Ordenes::DecideBuy;
@@ -597,10 +629,10 @@ int main()
 		window.draw(Player3Text);
 		
 		//MONEY
-		window.draw(myPlayerMoney);
-		window.draw(Player1Money);
-		window.draw(Player2Money);
-		window.draw(Player3Money);
+		window.draw(playerMoney[0]);
+		window.draw(playerMoney[1]);
+		window.draw(playerMoney[2]);
+		window.draw(playerMoney[3]);
 
 		//BOARD
 		window.draw(spriteBoard);
