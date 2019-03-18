@@ -60,6 +60,8 @@ int dice2;
 int resultDices;
 int MoveSquares;
 float casillasTotales;
+int RandomToCharge;
+int Tax;
 
 //Lista para guardar los sockets
 std::list<sf::TcpSocket*> clients;
@@ -547,7 +549,7 @@ int main()
 									dice2 = rand() % 6 + 1;
 									resultDices = dice1 + dice2;
 									//casillasTotales = resultDices / 10;
-									players[indexTurn].casilla += 5;
+									players[indexTurn].casilla += 4;
 									if (players[indexTurn].casilla > 39)
 									{
 										if (players[indexTurn].casilla == 40)
@@ -578,9 +580,9 @@ int main()
 											//Se envia una pregunta para comprar
 											}
 											else 
-										{
+											{
 											//Se le envia la cantidad de dinero que le queda y al jugador beneficiado la suya
-										}
+											}
 											break;
 										case 1://Estacion
 											packSend << tablero[players[indexTurn].casilla].owner;
@@ -606,9 +608,17 @@ int main()
 											break;
 										case 3://FreeMoney
 											//RandomMoneyToGive y enviar que cantidad tiene ahora
+											std::cout << "FREE MONEY" << std::endl;
+											RandomToCharge = (rand() % 200 + 1) + players[indexTurn].money;
+											packSend << RandomToCharge;
+											finishTurn = true;
 											break;
 										case 4://Tax
 											//Envio de cantidad que le queda al jugador
+											std::cout << "HACIENDA" << std::endl;
+											Tax = players[indexTurn].money - tablero[players[indexTurn].casilla].priceToCharge;
+											packSend << Tax;
+											finishTurn = true;
 											break;
 										case 5://Jail
 											//Se le informa de que estara en la carcel x turnos si no paga
@@ -616,13 +626,13 @@ int main()
 										case 6://Company
 											packSend << tablero[players[indexTurn].casilla].owner;
 											if (tablero[players[indexTurn].casilla].owner == -1)//Casilla sin dueño
-										{
+											{
 											//Se envia una pregunta para comprar
-										}
+											}
 											else
-										{
+											{
 											//Se le envia la cantidad de dinero que le queda y al jugador beneficiado la suya
-										}
+											}
 											break;
 										default:
 											break;

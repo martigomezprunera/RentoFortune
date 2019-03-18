@@ -90,6 +90,7 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 	int auxPrecioPropiedad;
 	int auxNewTurn;
 	int auxIdOwner;
+
 	//RECIBIMOS LA INFORMACION DE TODOS LOS JUGADORES
 	status=sock->receive(packReceive);
 	if (status == sf::Socket::Done) 
@@ -125,6 +126,7 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 		startGame = true;
 	}
 	//JUEGO//////////////////////////////////////////////////////////////////
+	packReceive.clear();
 	while (running)
 	{
 		/*for (int i = 0; i < VectorPlayersSize; i++)
@@ -149,9 +151,7 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 				packReceive >> auxId;
 				packReceive >> auxCasilla;
 				packReceive >> auxPositionX;
-				packReceive >> auxPositionY;
-				
-				{
+				packReceive >> auxPositionY;		
 				packReceive >> auxTipo;								
 				switch (auxTipo)
 				{
@@ -200,8 +200,26 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 				case 2://Neutra
 					break;
 				case 3://FreeMoney
+					packReceive >> auxMoney;
+					packReceive >> auxId;
+					packReceive >> auxNewTurn;
+					//UPDATE MONEY
+					players[auxId].money = auxMoney;
+					players[auxId].isYourTurn = false;
+					players[auxNewTurn].isYourTurn = true;
+
+					playerMoney[auxId].setString(std::to_string(players[auxId].money).append("$"));
 					break;
 				case 4://Tax
+					packReceive >> auxMoney;
+					packReceive >> auxId;
+					packReceive >> auxNewTurn;
+					//UPDATE MONEY
+					players[auxId].money = auxMoney;
+					players[auxId].isYourTurn = false;
+					players[auxNewTurn].isYourTurn = true;
+
+					playerMoney[auxId].setString(std::to_string(players[auxId].money).append("$"));
 					break;
 				case 5://Jail
 					break;
@@ -219,7 +237,7 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 				default:
 					break;
 				}
-				}		
+					
 				
 				//Actualizamos Player que ha tirado//////
 				players[auxId].casilla = auxCasilla;
