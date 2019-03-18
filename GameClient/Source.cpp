@@ -159,11 +159,31 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 					packReceive >> owner;
 					if (owner == -1)
 					{
+						packReceive >> auxPrecioPropiedad;
 						//pregunto si quiero comprar
+						std::cout << auxPrecioPropiedad << std::endl;
+						propiertyToBuy.setString(std::to_string(auxPrecioPropiedad));
+						if (players[indexPlayer].isYourTurn)
+						{
+							accion = Acciones::PUEDOCOMPRAR;
+						}
 					}
 					else 
 					{
+						packReceive >> auxMoney;
+						packReceive >> auxMoney2;
+						packReceive >> auxIdOwner;
+						packReceive >> auxId;
+						packReceive >> auxNewTurn;
+						//Update
+						players[auxId].money = auxMoney;
+						players[auxIdOwner].money = auxMoney2;
+						players[auxId].isYourTurn = false;
+						players[auxNewTurn].isYourTurn = true;
+						std::cout << "New turn :" << auxNewTurn << std::endl;
 						//Actualizo mi dinero y el del propietario
+						playerMoney[auxId].setString(std::to_string(players[auxId].money).append("$"));
+						playerMoney[auxIdOwner].setString(std::to_string(players[auxIdOwner].money).append("$"));
 					}
 					break;
 				case 1://Estacion
