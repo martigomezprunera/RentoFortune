@@ -40,11 +40,22 @@ sf::Socket::Status status;
 sf::Mutex mtx;
 Acciones accion = Acciones::NONE;
 int owner=-1;
+int counteCasillasUsadas = 0;
+
+//struct color asociado
+struct ColorPlayer
+{
+	int indexPlayer;
+	int color;
+};
 
 //VECTOR PLAYER
 std::vector<PlayerInfo> players;
 int VectorPlayersSize;
 int indexPlayer;
+bool HasBuyed = false;
+//COLOR ASOCIADO AL PLAYER
+ColorPlayer JugadorColor[4];
 
 //TEXTO Dinero Player
 sf::Text playerMoney[4];
@@ -60,6 +71,9 @@ sf::Vector2<int> mousePos;
 
 //TextForJail
 sf::Text turnsInJail;
+
+//RectanglesBuyed
+sf::RectangleShape Buyed[40];
 
 //OVERCHARGED FUNCTIONS (PLAYER INFO)
 sf::Packet& operator <<(sf::Packet& packet, const PlayerInfo& playerInfo)
@@ -95,7 +109,8 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 	int auxPrecioPropiedad;
 	int auxNewTurn;
 	int auxIdOwner;
-	int auxNumberTurnsToLose = 0;;
+	int auxNumberTurnsToLose = 0;
+
 	//RECIBIMOS LA INFORMACION DE TODOS LOS JUGADORES
 	status=sock->receive(packReceive);
 	if (status == sf::Socket::Done) 
@@ -315,7 +330,129 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 				players[auxId].isYourTurn = false;
 				players[auxNewTurn].isYourTurn = true;
 				//Update text
-				playerMoney[auxId].setString(std::to_string(players[auxId].money));
+				playerMoney[auxId].setString(std::to_string(players[auxId].money).append("$"));
+
+				//MARCAR DE QUIEN ES LA CASILLA
+				switch (auxId)
+				{
+				case 0:
+					Buyed[counteCasillasUsadas].setSize(sf::Vector2f(25, 25));
+					Buyed[counteCasillasUsadas].setOutlineThickness(5);
+					Buyed[counteCasillasUsadas].setOutlineColor(sf::Color(0, 0, 0, 255));
+					for (int i = 0; i < 4; i++)
+					{
+						if (auxId == JugadorColor[i].indexPlayer)
+						{
+							switch (JugadorColor[i].color)
+							{
+							case 0:
+								Buyed[counteCasillasUsadas].setFillColor(sf::Color(255, 0, 0));
+								break;
+							case 1:
+								Buyed[counteCasillasUsadas].setFillColor(sf::Color(0, 255, 0));
+								break;
+							case 2:
+								Buyed[counteCasillasUsadas].setFillColor(sf::Color(0, 0, 255));
+								break;
+							case 3:
+								Buyed[counteCasillasUsadas].setFillColor(sf::Color(128, 128, 255));
+								break;
+							default:
+								break;
+							}
+						}
+					}
+					break;
+				case 1:
+					Buyed[counteCasillasUsadas].setSize(sf::Vector2f(25, 25));
+					Buyed[counteCasillasUsadas].setOutlineThickness(5);
+					Buyed[counteCasillasUsadas].setOutlineColor(sf::Color(0, 0, 0, 255));
+					for (int i = 0; i < 4; i++)
+					{
+						if (auxId == JugadorColor[i].indexPlayer)
+						{
+							switch (JugadorColor[i].color)
+							{
+							case 0:
+								Buyed[counteCasillasUsadas].setFillColor(sf::Color(255, 0, 0));
+								break;
+							case 1:
+								Buyed[counteCasillasUsadas].setFillColor(sf::Color(0, 255, 0));
+								break;
+							case 2:
+								Buyed[counteCasillasUsadas].setFillColor(sf::Color(0, 0, 255));
+								break;
+							case 3:
+								Buyed[counteCasillasUsadas].setFillColor(sf::Color(128, 128, 255));
+								break;
+							default:
+								break;
+							}
+						}
+					}
+					break;
+				case 2:
+					Buyed[counteCasillasUsadas].setSize(sf::Vector2f(25, 25));
+					Buyed[counteCasillasUsadas].setOutlineThickness(5);
+					Buyed[counteCasillasUsadas].setOutlineColor(sf::Color(0, 0, 0, 255));
+					for (int i = 0; i < 4; i++)
+					{
+						if (auxId == JugadorColor[i].indexPlayer)
+						{
+							switch (JugadorColor[i].color)
+							{
+							case 0:
+								Buyed[counteCasillasUsadas].setFillColor(sf::Color(255, 0, 0));
+								break;
+							case 1:
+								Buyed[counteCasillasUsadas].setFillColor(sf::Color(0, 255, 0));
+								break;
+							case 2:
+								Buyed[counteCasillasUsadas].setFillColor(sf::Color(0, 0, 255));
+								break;
+							case 3:
+								Buyed[counteCasillasUsadas].setFillColor(sf::Color(128, 128, 255));
+								break;
+							default:
+								break;
+							}
+						}
+					}
+					break;
+				case 3:
+					Buyed[counteCasillasUsadas].setSize(sf::Vector2f(25, 25));
+					Buyed[counteCasillasUsadas].setOutlineThickness(5);
+					Buyed[counteCasillasUsadas].setOutlineColor(sf::Color(0, 0, 0, 255));
+					for (int i = 0; i < 4; i++)
+					{
+						if (auxId == JugadorColor[i].indexPlayer)
+						{
+							switch (JugadorColor[i].color)
+							{
+							case 0:
+								Buyed[counteCasillasUsadas].setFillColor(sf::Color(255, 0, 0));
+								break;
+							case 1:
+								Buyed[counteCasillasUsadas].setFillColor(sf::Color(0, 255, 0));
+								break;
+							case 2:
+								Buyed[counteCasillasUsadas].setFillColor(sf::Color(0, 0, 255));
+								break;
+							case 3:
+								Buyed[counteCasillasUsadas].setFillColor(sf::Color(128, 128, 255));
+								break;
+							default:
+								break;
+							}
+						}
+					}
+					break;
+				default:
+					break;
+				}
+				//POSICION
+				Buyed[counteCasillasUsadas].setPosition(players[auxId].position.x, players[auxId].position.y - 60);
+				counteCasillasUsadas++;
 				break;
 			case 3://NewTurn
 				packReceive >> auxNumberTurnsToLose;
@@ -583,6 +720,10 @@ int main()
 			playerTokens[i].setFillColor(sf::Color(255, 0, 0));
 			playerTokens[i].setOutlineThickness(2);
 			playerTokens[i].setOutlineColor(sf::Color(0, 0, 0));
+
+			//JUGADOR COLOR ASOCIADO
+			JugadorColor[i].indexPlayer = i;
+			JugadorColor[i].color = 0;
 		}
 		else
 		{
@@ -607,6 +748,10 @@ int main()
 				playerTokens[i].setFillColor(sf::Color(0, 255, 0));
 				playerTokens[i].setOutlineThickness(2);
 				playerTokens[i].setOutlineColor(sf::Color(0, 0, 0));
+
+				//JUGADOR COLOR ASOCIADO
+				JugadorColor[i].indexPlayer = i;
+				JugadorColor[i].color = 1;
 				break;
 			case 1:
 				//TEXT
@@ -627,6 +772,10 @@ int main()
 				playerTokens[i].setFillColor(sf::Color(0, 0, 255));
 				playerTokens[i].setOutlineThickness(2);
 				playerTokens[i].setOutlineColor(sf::Color(0, 0, 0));
+
+				//JUGADOR COLOR ASOCIADO
+				JugadorColor[i].indexPlayer = i;
+				JugadorColor[i].color = 2;
 				break;
 			case 2:
 				//TEXT
@@ -647,11 +796,23 @@ int main()
 				playerTokens[i].setFillColor(sf::Color(128, 128, 255));
 				playerTokens[i].setOutlineThickness(2);
 				playerTokens[i].setOutlineColor(sf::Color(0, 0, 0));
+
+				//JUGADOR COLOR ASOCIADO
+				JugadorColor[i].indexPlayer = i;
+				JugadorColor[i].color = 3;
 				break;
 			}
 			counterPlayerText++;
 		}
 	}
+	
+	//STRUCT
+	/*for (int i = 0; i < 4; i++)
+	{
+		std::cout << "Index: " << JugadorColor[i].indexPlayer << std::endl;
+		std::cout << "Color: " << JugadorColor[i].color << std::endl;
+	}*/
+
 
 	//BUCLE DE JUEGO
 	while (window.isOpen() && running)
@@ -789,6 +950,12 @@ int main()
 		window.draw(playerTokens[1]);
 		window.draw(playerTokens[2]);
 		window.draw(playerTokens[3]);
+
+		//COSAS COMPRADAS
+		for (int i = 0; i < 40; i++)
+		{
+			window.draw(Buyed[i]);
+		}
 
 		//BUTTON
 		//SI E TU TURNO

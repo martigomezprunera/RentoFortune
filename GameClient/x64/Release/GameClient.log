@@ -1,32 +1,38 @@
 ﻿  Source.cpp
-e:\3o\prog jocs xarxes\rentofortune\gameclient\source.cpp(307): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+c:\practicaredes\rentofortune\gameclient\source.cpp(322): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
           with
           [
               T=int
           ]
-e:\3o\prog jocs xarxes\rentofortune\gameclient\source.cpp(582): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+c:\practicaredes\rentofortune\gameclient\source.cpp(454): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\practicaredes\rentofortune\gameclient\source.cpp(454): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
           with
           [
               T=int
           ]
-e:\3o\prog jocs xarxes\rentofortune\gameclient\source.cpp(606): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+c:\practicaredes\rentofortune\gameclient\source.cpp(719): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
           with
           [
               T=int
           ]
-e:\3o\prog jocs xarxes\rentofortune\gameclient\source.cpp(626): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+c:\practicaredes\rentofortune\gameclient\source.cpp(747): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
           with
           [
               T=int
           ]
-e:\3o\prog jocs xarxes\rentofortune\gameclient\source.cpp(646): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+c:\practicaredes\rentofortune\gameclient\source.cpp(771): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+          with
+          [
+              T=int
+          ]
+c:\practicaredes\rentofortune\gameclient\source.cpp(795): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
           with
           [
               T=int
           ]
   Generating code
-  2 of 332 functions ( 0.6%) were compiled, the rest were copied from previous compilation.
+  1 of 334 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+    1 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
-  GameClient.vcxproj -> E:\3o\Prog jocs xarxes\RentoFortune\x64\Release\GameClient.exe
+  GameClient.vcxproj -> C:\practicaRedes\RentoFortune\x64\Release\GameClient.exe

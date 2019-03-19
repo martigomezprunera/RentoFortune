@@ -535,6 +535,7 @@ int main()
 									counterPlayer++;
 									packReceive >> playerInfo.name;
 									playerInfo.id = counterPlayer;
+									playerInfo.id = counterPlayer;
 
 									//AÑADIMOS JUGADOR AL VECTOR
 									mtx.lock();
@@ -567,7 +568,7 @@ int main()
 										//RANDOM DICES
 										dice1 = rand() % 6 + 1;
 										dice2 = rand() % 6 + 1;
-										resultDices = 10;// dice1 + dice2;
+										resultDices = dice1 + dice2;// dice1 + dice2;
 										//casillasTotales = resultDices / 10;
 										players[indexTurn].casilla += resultDices;
 										if (players[indexTurn].casilla > 39)
