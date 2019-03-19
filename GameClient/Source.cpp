@@ -22,13 +22,15 @@ enum Ordenes
 {
 	CreatePlayer,
 	ThrowDices,
-	DecideBuy
+	DecideBuy,
+	DecidePayJail
 };
 
 enum Acciones
 {
 	NONE,
-	PUEDOCOMPRAR
+	PUEDOCOMPRAR,
+	SALIRDELACARCEL
 };
 
 //VARIABLES GLOBALES
@@ -56,6 +58,8 @@ sf::CircleShape playerTokens[4];
 //Vector2 mouse
 sf::Vector2<int> mousePos;
 
+//TextForJail
+sf::Text turnsInJail;
 
 //OVERCHARGED FUNCTIONS (PLAYER INFO)
 sf::Packet& operator <<(sf::Packet& packet, const PlayerInfo& playerInfo)
@@ -79,6 +83,7 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 	//VARIABLES SIMPLES
 	PlayerInfo auxPlayer;
 	std::string auxName;
+	std::string auxJail;
 	int auxPositionX;
 	int auxPositionY;
 	int auxMoney;
@@ -90,7 +95,7 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 	int auxPrecioPropiedad;
 	int auxNewTurn;
 	int auxIdOwner;
-
+	int auxNumberTurnsToLose = 0;;
 	//RECIBIMOS LA INFORMACION DE TODOS LOS JUGADORES
 	status=sock->receive(packReceive);
 	if (status == sf::Socket::Done) 
@@ -218,6 +223,11 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 					}
 					break;
 				case 2://Neutra
+					packReceive >> auxId;
+					packReceive >> auxNewTurn;
+					//UPDATE MONEY					
+					players[auxId].isYourTurn = false;
+					players[auxNewTurn].isYourTurn = true;
 					break;
 				case 3://FreeMoney
 					packReceive >> auxMoney;
@@ -242,22 +252,53 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 					playerMoney[auxId].setString(std::to_string(players[auxId].money).append("$"));
 					break;
 				case 5://Jail
+					packReceive >> auxCasilla;
+					packReceive >> auxPositionX;
+					packReceive >> auxPositionY;
+					packReceive >> auxId;
+					packReceive >> auxNewTurn;
+					//Update
+					players[auxId].isYourTurn = false;
+					players[auxNewTurn].isYourTurn = true;
+					if (indexPlayer==auxId)
+					{
+						accion = Acciones::SALIRDELACARCEL;
+					}
 					break;
-				case 6://Company
+				case 6://Company	
 					packReceive >> owner;
 					if (owner == -1)
 					{
+						packReceive >> auxPrecioPropiedad;
 						//pregunto si quiero comprar
+						std::cout << auxPrecioPropiedad << std::endl;
+						propiertyToBuy.setString(std::to_string(auxPrecioPropiedad));
+						if (players[indexPlayer].isYourTurn)
+						{
+							accion = Acciones::PUEDOCOMPRAR;
+						}
 					}
-					else 
+					else
 					{
+						packReceive >> auxMoney;
+						packReceive >> auxMoney2;
+						packReceive >> auxIdOwner;
+						packReceive >> auxId;
+						packReceive >> auxNewTurn;
+						//Update
+						players[auxId].money = auxMoney;
+						players[auxIdOwner].money = auxMoney2;
+						players[auxId].isYourTurn = false;
+						players[auxNewTurn].isYourTurn = true;
+						std::cout << "New turn :" << auxNewTurn << std::endl;
 						//Actualizo mi dinero y el del propietario
+						playerMoney[auxId].setString(std::to_string(players[auxId].money).append("$"));
+						playerMoney[auxIdOwner].setString(std::to_string(players[auxIdOwner].money).append("$"));
 					}
 					break;
 				default:
 					break;
-				}
-					
+				}					
 				
 				//Actualizamos Player que ha tirado//////
 				players[auxId].casilla = auxCasilla;
@@ -268,7 +309,7 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 			case 2://Actualizar dinero
 				packReceive >> auxMoney;
 				packReceive >> auxId;
-				packReceive >> auxNewTurn;
+				packReceive >> auxNewTurn;				
 				//Update dinero
 				players[auxId].money = auxMoney;
 				players[auxId].isYourTurn = false;
@@ -276,15 +317,36 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 				//Update text
 				playerMoney[auxId].setString(std::to_string(players[auxId].money));
 				break;
-			case 3:
+			case 3://NewTurn
+				packReceive >> auxNumberTurnsToLose;
 				packReceive >> auxId;
 				packReceive >> auxNewTurn;
 				players[auxId].isYourTurn = false;
-				players[auxNewTurn].isYourTurn = true;
+				players[auxNewTurn].isYourTurn = true;	
+				std::cout << "Turnos restantes :" << auxNumberTurnsToLose << std::endl;
+				std::cout << "AuxId :" << auxId << std::endl;
+				std::cout << "indexPlayer :" << indexPlayer << std::endl;
+				if (auxId == indexPlayer)
+				{
+					if (auxNumberTurnsToLose == 0)
+					{
+						accion = Acciones::NONE;
+					}
+				}
 				break;
 			case 4://Charge
 				
 				break;
+			case 5://AcutalizeMoneyRound
+				packReceive >> auxMoney;
+				packReceive >> auxId;
+				players[auxId].money = auxMoney;
+				playerMoney[auxId].setString(std::to_string(players[auxId].money));
+				if (auxId==indexPlayer)
+				{
+					accion = Acciones::NONE;
+				}
+				break;			
 			}
 		}
 		//Limpiamos pack
@@ -373,6 +435,7 @@ int main()
 	TextBuy.setPosition(910, 765);
 	TextBuy.setStyle(sf::Text::Bold);
 
+
 	//TEXT DISPLAY PRICE AND NAMEPROPIERTY///////////////propiertyToBuy
 	//text price
 	propiertyToBuy = { "Price!", fontCourbd, 40 };
@@ -385,6 +448,23 @@ int main()
 	rectPrice.setOutlineThickness(5);
 	rectPrice.setOutlineColor(sf::Color(255, 165, 0, 255));
 	rectPrice.setPosition(270, 295);
+
+	//Text for jail
+	turnsInJail = { "Jail!", fontCourbd, 14 };
+	turnsInJail.setFillColor(sf::Color(0, 0, 0));
+	turnsInJail.setPosition(280, 300);
+	turnsInJail.setStyle(sf::Text::Bold);
+	//PriceJail
+	sf::Text JailPrice("You Have to pay 50$", fontCourbd, 14);
+	JailPrice.setFillColor(sf::Color(0, 0, 0));
+	JailPrice.setPosition(270, 310);
+	JailPrice.setStyle(sf::Text::Bold);
+	//rectangle Jail
+	sf::RectangleShape rectJail(sf::Vector2f(200, 50));
+	rectJail.setFillColor(sf::Color(255, 165, 0, 255));
+	rectJail.setOutlineThickness(5);
+	rectJail.setOutlineColor(sf::Color(255, 165, 0, 255));
+	rectJail.setPosition(265, 290);
 
 	//text ButtonNotBuy
 	sf::Text TextNotBuy("Not Buy", fontCourbd, 14);
@@ -614,7 +694,7 @@ int main()
 							}
 							
 						}
-						if ((players[indexPlayer].isYourTurn == true) && (accion == Acciones::PUEDOCOMPRAR))
+						else if ((players[indexPlayer].isYourTurn == true) && (accion == Acciones::PUEDOCOMPRAR))
 						{
 							if ((evento.mouseButton.x < 100) && (evento.mouseButton.y > 750))//NoCompramos
 							{
@@ -642,6 +722,35 @@ int main()
 									std::cout <<"Player send " << indexPlayer << std::endl;
 								}
 								accion = Acciones::NONE;
+							}
+						}
+						else if ((players[indexPlayer].isYourTurn == true) && (accion == Acciones::SALIRDELACARCEL))
+						{
+							if ((evento.mouseButton.x < 100) && (evento.mouseButton.y > 750))//NoCompramos
+							{
+								//Preparamos pack
+								pack.clear();
+								pack << Ordenes::DecidePayJail;
+								pack << indexPlayer;
+								pack << false;
+								status = sock.send(pack);
+								std::cout << "Player id: " << indexPlayer << std::endl;
+								if (status == sf::Socket::Done)
+								{
+									std::cout << "Player send " << indexPlayer << std::endl;
+								}
+							}
+							else if ((evento.mouseButton.x > 900) && (evento.mouseButton.y > 750))//Compramos
+							{
+								pack.clear();
+								pack << Ordenes::DecidePayJail;
+								pack << indexPlayer;
+								pack << true;
+								status = sock.send(pack);
+								if (status == sf::Socket::Done)
+								{
+									std::cout << "Player send " << indexPlayer << std::endl;
+								}
 							}
 						}
 					}
@@ -686,26 +795,40 @@ int main()
 		if (players[indexPlayer].isYourTurn)
 		{
 			window.draw(buttonMyTurn);
+			if (accion == Acciones::NONE)
+			{
+				window.draw(TextThrowDices);
+			}
+			else if (accion == Acciones::PUEDOCOMPRAR)
+			{
+				//Buy text
+				window.draw(TextBuy);
+				//Price
+				window.draw(rectPrice);
+				window.draw(propiertyToBuy);
+				//Button not to buy
+				window.draw(ButtonNotBuy);
+				window.draw(TextNotBuy);
+
+			}
+			else if (accion == Acciones::SALIRDELACARCEL)
+			{
+				//Buy text
+				window.draw(TextBuy);
+				//Price
+				window.draw(rectJail);
+				window.draw(turnsInJail);
+				window.draw(JailPrice);
+				//Button not to buy
+				window.draw(ButtonNotBuy);
+				window.draw(TextNotBuy);
+			}
 			
 		}
 		else 
 		{
 			window.draw(buttonNotMyTurn);
-		}
-		//TextThrowDices
-		if(accion==Acciones::NONE)
 			window.draw(TextThrowDices);
-		else if (accion == Acciones::PUEDOCOMPRAR)
-		{
-			//Buy text
-			window.draw(TextBuy);
-			//Price
-			window.draw(rectPrice);
-			window.draw(propiertyToBuy);
-			//Button not to buy
-			window.draw(ButtonNotBuy);
-			window.draw(TextNotBuy);
-			
 		}
 		//PANTALLA DE JUEGO
 		window.display();

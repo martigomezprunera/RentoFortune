@@ -1,32 +1,32 @@
 ﻿  Source.cpp
-c:\practicaredes\rentofortune\gameclient\source.cpp(266): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+e:\3o\prog jocs xarxes\rentofortune\gameclient\source.cpp(307): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
           with
           [
               T=int
           ]
-c:\practicaredes\rentofortune\gameclient\source.cpp(502): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+e:\3o\prog jocs xarxes\rentofortune\gameclient\source.cpp(582): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
           with
           [
               T=int
           ]
-c:\practicaredes\rentofortune\gameclient\source.cpp(526): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+e:\3o\prog jocs xarxes\rentofortune\gameclient\source.cpp(606): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
           with
           [
               T=int
           ]
-c:\practicaredes\rentofortune\gameclient\source.cpp(546): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+e:\3o\prog jocs xarxes\rentofortune\gameclient\source.cpp(626): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
           with
           [
               T=int
           ]
-c:\practicaredes\rentofortune\gameclient\source.cpp(566): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+e:\3o\prog jocs xarxes\rentofortune\gameclient\source.cpp(646): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
           with
           [
               T=int
           ]
   Generating code
-  2 of 330 functions ( 0.6%) were compiled, the rest were copied from previous compilation.
+  2 of 332 functions ( 0.6%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    7 functions had inline decision re-evaluated but remain unchanged
+    0 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
-  GameClient.vcxproj -> C:\practicaRedes\RentoFortune\x64\Release\GameClient.exe
+  GameClient.vcxproj -> E:\3o\Prog jocs xarxes\RentoFortune\x64\Release\GameClient.exe
