@@ -31,7 +31,7 @@ struct casilla
 {
 	tipoCasilla tipo;
 	std::string name;
-	int numCasas;
+	int numCasas=0;
 	int price;
 	int priceEdification;
 	int mortgageValue;
@@ -180,7 +180,7 @@ void initializeBoard()
 			break;
 		case 1:
 			tablero[i].price = 60;
-			tablero[i].owner = -1;
+			tablero[i].owner = 0;
 			tablero[i].name = "Primera Marron";
 			tablero[i].priceEdification = 100;
 			tablero[i].tipo = tipoCasilla::PROPIEDAD;
@@ -531,12 +531,11 @@ int main()
 
 								switch (order)
 								{
-								case 0://CreatePlayer///////
-									counterPlayer++;
+								case 0://CreatePlayer///////									
 									packReceive >> playerInfo.name;
 									playerInfo.id = counterPlayer;
 									playerInfo.id = counterPlayer;
-
+									counterPlayer++;
 									//AÑADIMOS JUGADOR AL VECTOR
 									mtx.lock();
 									players.push_back(playerInfo);
@@ -598,6 +597,51 @@ int main()
 										switch (getTypeCasilla(players[indexTurn].casilla))
 										{
 										case 0://Propiedad
+											if (tablero[players[indexTurn].casilla].owner == players[indexTurn].id)
+											{
+												if (tablero[players[indexTurn].casilla].priceEdification> players[indexTurn].money)
+												{
+													//no puede edificar
+													std::cout << "No pues edifica" << std::endl;
+													packSend << -2;
+													finishTurn = true;
+												}
+												else
+												{
+													//Preguntar si quiere edificar
+													std::cout << "Puede edificar" << std::endl;
+													packSend << tablero[players[indexTurn].casilla].owner;
+													packSend << tablero[players[indexTurn].casilla].priceEdification;
+												}
+
+											}
+											else if ((tablero[players[indexTurn].casilla].owner == -1) && (tablero[players[indexTurn].casilla].price > players[indexTurn].money))
+											{
+												std::cout << "No pues compra" << std::endl;
+												packSend << -2;
+												finishTurn = true;
+											}
+											else if ((tablero[players[indexTurn].casilla].owner == -1) && (players[indexTurn].money > tablero[players[indexTurn].casilla].price))//Casilla sin dueño
+											{
+												packSend << tablero[players[indexTurn].casilla].owner;
+												//Se envia una pregunta para comprar
+												packSend << tablero[players[indexTurn].casilla].price;
+												std::cout << "price: " << tablero[players[indexTurn].casilla].price;
+												//Enviar precio al que cobras
+											}
+											else
+											{
+												packSend << tablero[players[indexTurn].casilla].owner;
+												//Se le envia la cantidad de dinero que le queda y al jugador beneficiado la suya						
+												auxMoneyToCharge = players[indexTurn].money - tablero[players[indexTurn].casilla].priceToCharge - (50* tablero[players[indexTurn].casilla].numCasas);
+												packSend << auxMoneyToCharge;
+												auxMoneyToCharge = players[tablero[players[indexTurn].casilla].owner].money + tablero[players[indexTurn].casilla].priceToCharge+ (50 * tablero[players[indexTurn].casilla].numCasas);
+												packSend << auxMoneyToCharge;
+												packSend << tablero[players[indexTurn].casilla].owner;
+												finishTurn = true;
+											}
+											break;
+										case 1://Estacion
 											
 											if (tablero[players[indexTurn].casilla].price > players[indexTurn].money)
 											{
@@ -616,26 +660,6 @@ int main()
 											else
 											{
 												packSend << tablero[players[indexTurn].casilla].owner;
-												//Se le envia la cantidad de dinero que le queda y al jugador beneficiado la suya						
-												auxMoneyToCharge = players[indexTurn].money - tablero[players[indexTurn].casilla].priceToCharge;
-												packSend << auxMoneyToCharge;
-												auxMoneyToCharge = players[tablero[players[indexTurn].casilla].owner].money + tablero[players[indexTurn].casilla].priceToCharge;
-												packSend << auxMoneyToCharge;
-												packSend << tablero[players[indexTurn].casilla].owner;
-												finishTurn = true;
-											}
-											break;
-										case 1://Estacion
-											packSend << tablero[players[indexTurn].casilla].owner;
-											if ((tablero[players[indexTurn].casilla].owner == -1) && (players[indexTurn].money > tablero[players[indexTurn].casilla].price))//Casilla sin dueño
-											{
-												//Se envia una pregunta para comprar
-												packSend << tablero[players[indexTurn].casilla].price;
-												std::cout << "price: " << tablero[players[indexTurn].casilla].price;
-												//Enviar precio al que cobras
-											}
-											else
-											{
 												//Se le envia la cantidad de dinero que le queda y al jugador beneficiado la suya						
 												auxMoneyToCharge = players[indexTurn].money - tablero[players[indexTurn].casilla].priceToCharge;
 												packSend << auxMoneyToCharge;
@@ -762,6 +786,37 @@ int main()
 										finishTurn = true;
 									}
 									haveToSend = true; 
+									break;
+								case 4:
+									packReceive >> indexTurn;
+									packReceive >> auxPlayerBuy;
+									std::cout << "playerBuy: " << auxPlayerBuy << std::endl;
+									if (auxPlayerBuy)
+									{
+										if (tablero[players[indexTurn].casilla].numCasas < 4)
+										{
+											tablero[players[indexTurn].casilla].numCasas++;
+											std::cout << tablero[players[indexTurn].casilla].numCasas << std::endl;
+										}
+										players[indexTurn].money = players[indexTurn].money - tablero[players[indexTurn].casilla].priceEdification;
+										//RellenamosSend
+										packSend.clear();
+										packSend << Ordenes::UpdateMoney;
+										packSend << players[indexTurn].money;
+										std::cout << "Player decide buy House" << std::endl;
+										//EntireRound = 0;
+									}
+									else
+									{
+										//FALTA ENVIAR LA PASTA SI HA HECHO UNA VUELTA ENTERA
+										packSend.clear();
+										packSend << Ordenes::NewTurn;
+										packSend << 0;//Metemos numberturnstolose
+									}
+									haveToSend = true;
+									finishTurn = true;
+									break;
+								default:
 									break;
 								}
 

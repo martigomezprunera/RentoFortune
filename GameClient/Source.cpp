@@ -23,14 +23,16 @@ enum Ordenes
 	CreatePlayer,
 	ThrowDices,
 	DecideBuy,
-	DecidePayJail
+	DecidePayJail,
+	DecideConstruct
 };
 
 enum Acciones
 {
 	NONE,
 	PUEDOCOMPRAR,
-	SALIRDELACARCEL
+	SALIRDELACARCEL,
+	PONERCASA
 };
 
 //VARIABLES GLOBALES
@@ -196,6 +198,15 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 							accion = Acciones::PUEDOCOMPRAR;
 						}
 					}
+					else if (owner == indexPlayer)
+					{
+						packReceive >> auxPrecioPropiedad;
+						propiertyToBuy.setString(std::to_string(auxPrecioPropiedad));						
+						if(players[indexPlayer].isYourTurn)
+						{
+							accion = Acciones::PONERCASA;
+						}						
+					}
 					else 
 					{
 						packReceive >> auxMoney;
@@ -208,7 +219,8 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 						players[auxIdOwner].money = auxMoney2;
 						players[auxId].isYourTurn = false;
 						players[auxNewTurn].isYourTurn = true;
-						std::cout << "New turn :" << auxNewTurn << std::endl;
+						std::cout << "Money :" << auxMoney << " Id :" << auxId << std::endl;
+						std::cout << "Money :" << auxMoney2 << " Id :" << auxIdOwner << std::endl;
 						//Actualizo mi dinero y el del propietario
 						playerMoney[auxId].setString(std::to_string(players[auxId].money).append("$"));
 						playerMoney[auxIdOwner].setString(std::to_string(players[auxIdOwner].money).append("$"));
@@ -216,7 +228,15 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 					break;
 				case 1://Estacion
 					packReceive >> owner;
-					if (owner == -1)
+					if (owner == -2)
+					{
+						packReceive >> auxId;
+						packReceive >> auxNewTurn;
+						players[auxId].isYourTurn = false;
+						players[auxNewTurn].isYourTurn = true;
+						std::cout << "ifhdwoeiuhfowihfewpihewpo" << std::endl;
+					}
+					else if (owner == -1)
 					{
 						packReceive >> auxPrecioPropiedad;
 						//pregunto si quiero comprar
@@ -945,6 +965,36 @@ int main()
 								}
 							}
 						}
+						else if ((players[indexPlayer].isYourTurn == true) && (accion == Acciones::PONERCASA))
+						{
+							if ((evento.mouseButton.x < 100) && (evento.mouseButton.y > 750))//NoCompramos
+							{
+								//Preparamos pack
+								pack.clear();
+								pack << Ordenes::DecideConstruct;
+								pack << indexPlayer;
+								pack << false;
+								status = sock.send(pack);
+								if (status == sf::Socket::Done)
+								{
+									std::cout << "Player send " << indexPlayer << std::endl;
+								}
+								accion = Acciones::NONE;
+							}
+							else if ((evento.mouseButton.x > 900) && (evento.mouseButton.y > 750))//Compramos
+							{
+								pack.clear();
+								pack << Ordenes::DecideConstruct;
+								pack << indexPlayer;
+								pack << true;
+								status = sock.send(pack);
+								if (status == sf::Socket::Done)
+								{
+									std::cout << "Player send " << indexPlayer << std::endl;
+								}
+								accion = Acciones::NONE;
+							}
+						}
 					}
 					break;
 
@@ -1008,6 +1058,17 @@ int main()
 				window.draw(ButtonNotBuy);
 				window.draw(TextNotBuy);
 
+			}
+			else if (accion == Acciones::PONERCASA)
+			{
+				//Buy text
+				window.draw(TextBuy);
+				//Price
+				window.draw(rectPrice);
+				window.draw(propiertyToBuy);
+				//Button not to buy
+				window.draw(ButtonNotBuy);
+				window.draw(TextNotBuy);
 			}
 			else if (accion == Acciones::SALIRDELACARCEL)
 			{

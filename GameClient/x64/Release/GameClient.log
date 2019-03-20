@@ -1,56 +1,56 @@
 ﻿  Source.cpp
-c:\practicaredes\rentofortune\gameclient\source.cpp(338): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+e:\rentofortune\gameclient\source.cpp(358): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
           with
           [
               T=int
           ]
-c:\practicaredes\rentofortune\gameclient\source.cpp(472): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+e:\rentofortune\gameclient\source.cpp(492): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
           with
           [
               T=int
           ]
-c:\practicaredes\rentofortune\gameclient\source.cpp(472): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\practicaredes\rentofortune\gameclient\source.cpp(476): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\practicaredes\rentofortune\gameclient\source.cpp(476): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+e:\rentofortune\gameclient\source.cpp(492): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+e:\rentofortune\gameclient\source.cpp(496): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+e:\rentofortune\gameclient\source.cpp(496): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
           with
           [
               T=int
           ]
-c:\practicaredes\rentofortune\gameclient\source.cpp(480): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+e:\rentofortune\gameclient\source.cpp(500): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
           with
           [
               T=int
           ]
-c:\practicaredes\rentofortune\gameclient\source.cpp(480): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\practicaredes\rentofortune\gameclient\source.cpp(484): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\practicaredes\rentofortune\gameclient\source.cpp(484): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+e:\rentofortune\gameclient\source.cpp(500): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+e:\rentofortune\gameclient\source.cpp(504): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+e:\rentofortune\gameclient\source.cpp(504): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
           with
           [
               T=int
           ]
-c:\practicaredes\rentofortune\gameclient\source.cpp(750): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+e:\rentofortune\gameclient\source.cpp(770): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
           with
           [
               T=int
           ]
-c:\practicaredes\rentofortune\gameclient\source.cpp(778): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+e:\rentofortune\gameclient\source.cpp(798): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
           with
           [
               T=int
           ]
-c:\practicaredes\rentofortune\gameclient\source.cpp(802): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+e:\rentofortune\gameclient\source.cpp(822): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
           with
           [
               T=int
           ]
-c:\practicaredes\rentofortune\gameclient\source.cpp(826): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+e:\rentofortune\gameclient\source.cpp(846): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
           with
           [
               T=int
           ]
   Generating code
-  2 of 334 functions ( 0.6%) were compiled, the rest were copied from previous compilation.
+  1 of 334 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    1 functions had inline decision re-evaluated but remain unchanged
+    2 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
-  GameClient.vcxproj -> C:\practicaRedes\RentoFortune\x64\Release\GameClient.exe
+  GameClient.vcxproj -> E:\RentoFortune\x64\Release\GameClient.exe
