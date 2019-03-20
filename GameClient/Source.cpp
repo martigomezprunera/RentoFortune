@@ -32,7 +32,8 @@ enum Acciones
 	NONE,
 	PUEDOCOMPRAR,
 	SALIRDELACARCEL,
-	PONERCASA
+	PONERCASA,
+	GANADOR
 };
 
 //VARIABLES GLOBALES
@@ -43,7 +44,7 @@ sf::Mutex mtx;
 Acciones accion = Acciones::NONE;
 int owner=-1;
 int counteCasillasUsadas = 0;
-
+int winer;
 //struct color asociado
 struct ColorPlayer
 {
@@ -64,6 +65,9 @@ sf::Text playerMoney[4];
 
 //Aux buy
 sf::Text propiertyToBuy;
+
+//winer
+sf::Text Winer;
 
 //CIRCLE TOKEN
 sf::CircleShape playerTokens[4];
@@ -534,7 +538,16 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 				{
 					accion = Acciones::NONE;
 				}
-				break;			
+				break;	
+			case 7:
+				packReceive >> winer;
+				auxName = "El ganador es :";
+				Winer.setString(auxName.append(players[winer].name));
+				std::cout << auxName.append(players[winer].name) << std::endl;;
+				accion = Acciones::GANADOR;
+				break;
+			default:
+				break;
 			}
 		}
 		//Limpiamos pack
@@ -623,7 +636,17 @@ int main()
 	TextBuy.setPosition(910, 765);
 	TextBuy.setStyle(sf::Text::Bold);
 
-
+	//text price
+	Winer = { "Winner!", fontCourbd, 45 };
+	Winer.setFillColor(sf::Color(0, 0, 0));
+	Winer.setPosition(220, 300);
+	Winer.setStyle(sf::Text::Bold);
+	//rectangle 
+	sf::RectangleShape rectGanador(sf::Vector2f(700, 60));
+	rectGanador.setFillColor(sf::Color(255, 165, 0, 255));
+	rectGanador.setOutlineThickness(5);
+	rectGanador.setOutlineColor(sf::Color(255, 165, 0, 255));
+	rectGanador.setPosition(210, 295);
 	//TEXT DISPLAY PRICE AND NAMEPROPIERTY///////////////propiertyToBuy
 	//text price
 	propiertyToBuy = { "Price!", fontCourbd, 40 };
@@ -1040,54 +1063,63 @@ int main()
 
 		//BUTTON
 		//SI E TU TURNO
-		if (players[indexPlayer].isYourTurn)
+		if (accion != Acciones::GANADOR) 
 		{
-			window.draw(buttonMyTurn);
-			if (accion == Acciones::NONE)
+			if (players[indexPlayer].isYourTurn)
 			{
-				window.draw(TextThrowDices);
-			}
-			else if (accion == Acciones::PUEDOCOMPRAR)
-			{
-				//Buy text
-				window.draw(TextBuy);
-				//Price
-				window.draw(rectPrice);
-				window.draw(propiertyToBuy);
-				//Button not to buy
-				window.draw(ButtonNotBuy);
-				window.draw(TextNotBuy);
+				window.draw(buttonMyTurn);
+				if (accion == Acciones::NONE)
+				{
+					window.draw(TextThrowDices);
+				}
+				else if (accion == Acciones::PUEDOCOMPRAR)
+				{
+					//Buy text
+					window.draw(TextBuy);
+					//Price
+					window.draw(rectPrice);
+					window.draw(propiertyToBuy);
+					//Button not to buy
+					window.draw(ButtonNotBuy);
+					window.draw(TextNotBuy);
+
+				}
+				else if (accion == Acciones::PONERCASA)
+				{
+					//Buy text
+					window.draw(TextBuy);
+					//Price
+					window.draw(rectPrice);
+					window.draw(propiertyToBuy);
+					//Button not to buy
+					window.draw(ButtonNotBuy);
+					window.draw(TextNotBuy);
+				}
+				else if (accion == Acciones::SALIRDELACARCEL)
+				{
+					//Buy text
+					window.draw(TextBuy);
+					//Price
+					window.draw(rectJail);
+					window.draw(turnsInJail);
+					window.draw(JailPrice);
+					//Button not to buy
+					window.draw(ButtonNotBuy);
+					window.draw(TextNotBuy);
+				}
 
 			}
-			else if (accion == Acciones::PONERCASA)
+			else
 			{
-				//Buy text
-				window.draw(TextBuy);
-				//Price
-				window.draw(rectPrice);
-				window.draw(propiertyToBuy);
-				//Button not to buy
-				window.draw(ButtonNotBuy);
-				window.draw(TextNotBuy);
+				window.draw(buttonNotMyTurn);
+				window.draw(TextThrowDices);
 			}
-			else if (accion == Acciones::SALIRDELACARCEL)
-			{
-				//Buy text
-				window.draw(TextBuy);
-				//Price
-				window.draw(rectJail);
-				window.draw(turnsInJail);
-				window.draw(JailPrice);
-				//Button not to buy
-				window.draw(ButtonNotBuy);
-				window.draw(TextNotBuy);
-			}
-			
 		}
-		else 
+		else
 		{
-			window.draw(buttonNotMyTurn);
-			window.draw(TextThrowDices);
+
+			window.draw(rectGanador);
+			window.draw(Winer);
 		}
 		//PANTALLA DE JUEGO
 		window.display();

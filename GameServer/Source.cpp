@@ -78,7 +78,8 @@ enum Ordenes
 	NewTurn,
 	Charge,
 	RoundMoney,
-	WantGetOut
+	WantGetOut,
+	Winner
 };
 
 //OVERCHARGED FUNCTIONS (PLAYER INFO)
@@ -473,6 +474,8 @@ int main()
 	bool haveToSend = false;
 	bool auxPlayerBuy=false;
 	int auxMoneyToCharge;
+
+	int controlWin=0;
 	//BUCLE DE JUEGO
 	while (running)
 	{
@@ -831,20 +834,42 @@ int main()
 								if (finishTurn == true)
 								{
 									packSend << indexTurn;
-									players[indexTurn].isYourTurn = false;		
+									players[indexTurn].isYourTurn = false;	
+									controlWin = indexTurn;
 									do
 									{
-										indexTurn++;
+										indexTurn++;		
 										if (indexTurn > 3)
 										{
 											indexTurn = 0;
 										}
-									} while (players[indexTurn].money < 1);									
-									std::cout << "Esto eeeh:: " <<players[indexTurn].money  << std::endl;
+										if (controlWin ==indexTurn)
+										{
+											controlWin = 5;
+											break;
+										}
+									} while (players[indexTurn].money < 1);												
 									players[indexTurn].isYourTurn = true;									
 									packSend << indexTurn;
-									std::cout << "Next Turn id :" << indexTurn;
-									finishTurn = false;									
+									finishTurn = false;								
+									if (controlWin > 4)
+									{
+										packSend.clear();
+										int aux = 0;
+										int ganador=-1;
+										for (int i = 0; i < 4; i++)
+										{
+											if (players[i].money > aux)
+											{
+												aux = players[i].money;
+												ganador = players[i].id;
+											}
+										}
+										packSend << Ordenes::Winner;
+										packSend << ganador;
+										std::cout << "El ganador es:"<<ganador << std::endl;
+									}
+									controlWin = 0;
 								}
 
 								if (haveToSend)
