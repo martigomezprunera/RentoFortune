@@ -5,7 +5,7 @@
 PlayerInfo::PlayerInfo()
 {
 	casilla = 0;
-	money = 40;
+	money = 1250;
 	isYourTurn = false;
 	std::vector<int> myProperties;
 }

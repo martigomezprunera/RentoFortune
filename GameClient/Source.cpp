@@ -202,7 +202,7 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 							accion = Acciones::PUEDOCOMPRAR;
 						}
 					}
-					else if (owner == indexPlayer)
+					else if (owner == auxId)
 					{
 						packReceive >> auxPrecioPropiedad;
 						propiertyToBuy.setString(std::to_string(auxPrecioPropiedad));						
