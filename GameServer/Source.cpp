@@ -180,7 +180,7 @@ void initializeBoard()
 			break;
 		case 1:
 			tablero[i].price = 60;
-			tablero[i].owner = 0;
+			tablero[i].owner = -1;
 			tablero[i].name = "Primera Marron";
 			tablero[i].priceEdification = 100;
 			tablero[i].tipo = tipoCasilla::PROPIEDAD;
@@ -204,7 +204,7 @@ void initializeBoard()
 			break;
 		case 5:
 			tablero[i].price = 200;
-			tablero[i].owner = -1;
+			tablero[i].owner = 0;
 			tablero[i].name = "Primera Estacion";
 			tablero[i].tipo = tipoCasilla::ESTACION;
 			tablero[i].priceToCharge = 50;
@@ -567,7 +567,7 @@ int main()
 										//RANDOM DICES
 										dice1 = rand() % 6 + 1;
 										dice2 = rand() % 6 + 1;
-										resultDices = 1;// dice1 + dice2;// dice1 + dice2;
+										resultDices = 5;// dice1 + dice2;// dice1 + dice2;
 										//casillasTotales = resultDices / 10;
 										players[indexTurn].casilla += resultDices;
 										if (players[indexTurn].casilla > 39)
@@ -634,16 +634,22 @@ int main()
 												packSend << tablero[players[indexTurn].casilla].owner;
 												//Se le envia la cantidad de dinero que le queda y al jugador beneficiado la suya						
 												auxMoneyToCharge = players[indexTurn].money - tablero[players[indexTurn].casilla].priceToCharge - (50* tablero[players[indexTurn].casilla].numCasas);
+												players[indexTurn].money = auxMoneyToCharge;
 												packSend << auxMoneyToCharge;
 												auxMoneyToCharge = players[tablero[players[indexTurn].casilla].owner].money + tablero[players[indexTurn].casilla].priceToCharge+ (50 * tablero[players[indexTurn].casilla].numCasas);
+												players[tablero[players[indexTurn].casilla].owner].money = auxMoneyToCharge;
 												packSend << auxMoneyToCharge;
 												packSend << tablero[players[indexTurn].casilla].owner;
 												finishTurn = true;
 											}
 											break;
 										case 1://Estacion
-											
-											if (tablero[players[indexTurn].casilla].price > players[indexTurn].money)
+											if (tablero[players[indexTurn].casilla].owner == players[indexTurn].id)
+											{												
+												packSend << -2;
+												finishTurn = true;
+											}
+											else if ((tablero[players[indexTurn].casilla].owner == -1) && (tablero[players[indexTurn].casilla].price > players[indexTurn].money))
 											{
 												std::cout << "No pues compra" << std::endl;
 												packSend << -2;
@@ -662,8 +668,10 @@ int main()
 												packSend << tablero[players[indexTurn].casilla].owner;
 												//Se le envia la cantidad de dinero que le queda y al jugador beneficiado la suya						
 												auxMoneyToCharge = players[indexTurn].money - tablero[players[indexTurn].casilla].priceToCharge;
+												players[indexTurn].money =auxMoneyToCharge;
 												packSend << auxMoneyToCharge;
 												auxMoneyToCharge = players[tablero[players[indexTurn].casilla].owner].money + tablero[players[indexTurn].casilla].priceToCharge;
+												players[tablero[players[indexTurn].casilla].owner].money = auxMoneyToCharge;
 												packSend << auxMoneyToCharge;
 												packSend << tablero[players[indexTurn].casilla].owner;
 												finishTurn = true;
@@ -823,12 +831,16 @@ int main()
 								if (finishTurn == true)
 								{
 									packSend << indexTurn;
-									players[indexTurn].isYourTurn = false;
-									indexTurn++;									
-									if (indexTurn > 3)
+									players[indexTurn].isYourTurn = false;		
+									do
 									{
-										indexTurn = 0;										
-									}									
+										indexTurn++;
+										if (indexTurn > 3)
+										{
+											indexTurn = 0;
+										}
+									} while (players[indexTurn].money < 1);									
+									std::cout << "Esto eeeh:: " <<players[indexTurn].money  << std::endl;
 									players[indexTurn].isYourTurn = true;									
 									packSend << indexTurn;
 									std::cout << "Next Turn id :" << indexTurn;
