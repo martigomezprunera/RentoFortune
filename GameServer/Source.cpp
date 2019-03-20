@@ -570,7 +570,7 @@ int main()
 										//RANDOM DICES
 										dice1 = rand() % 6 + 1;
 										dice2 = rand() % 6 + 1;
-										resultDices = 5;// dice1 + dice2;// dice1 + dice2;
+										resultDices = 2;// dice1 + dice2;// dice1 + dice2;
 										//casillasTotales = resultDices / 10;
 										players[indexTurn].casilla += resultDices;
 										if (players[indexTurn].casilla > 39)
@@ -686,7 +686,7 @@ int main()
 										case 3://FreeMoney
 											//RandomMoneyToGive y enviar que cantidad tiene ahora
 											std::cout << "FREE MONEY" << std::endl;
-											players[indexTurn].money = (rand() % 200 + 1) + players[indexTurn].money;
+											players[indexTurn].money = ((rand() % 401) - 200) + players[indexTurn].money;
 											packSend << players[indexTurn].money;
 											finishTurn = true;
 											//EntireRound = 0;
