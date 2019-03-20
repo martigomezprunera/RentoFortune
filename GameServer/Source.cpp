@@ -714,7 +714,9 @@ int main()
 									else 
 									{
 										//FALTA ENVIAR LA PASTA SI HA HECHO UNA VUELTA ENTERA
+										packSend.clear();
 										packSend << Ordenes::NewTurn;
+										packSend << 0;//Metemos numberturnstolose
 									}
 									haveToSend = true;
 									finishTurn = true;

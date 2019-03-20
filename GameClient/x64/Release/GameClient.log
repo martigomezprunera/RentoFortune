@@ -4,28 +4,46 @@ c:\practicaredes\rentofortune\gameclient\source.cpp(322): warning C4244: 'argume
           [
               T=int
           ]
-c:\practicaredes\rentofortune\gameclient\source.cpp(454): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\practicaredes\rentofortune\gameclient\source.cpp(454): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+c:\practicaredes\rentofortune\gameclient\source.cpp(456): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
           with
           [
               T=int
           ]
-c:\practicaredes\rentofortune\gameclient\source.cpp(719): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+c:\practicaredes\rentofortune\gameclient\source.cpp(456): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\practicaredes\rentofortune\gameclient\source.cpp(460): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\practicaredes\rentofortune\gameclient\source.cpp(460): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
           with
           [
               T=int
           ]
-c:\practicaredes\rentofortune\gameclient\source.cpp(747): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+c:\practicaredes\rentofortune\gameclient\source.cpp(464): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
           with
           [
               T=int
           ]
-c:\practicaredes\rentofortune\gameclient\source.cpp(771): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+c:\practicaredes\rentofortune\gameclient\source.cpp(464): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\practicaredes\rentofortune\gameclient\source.cpp(468): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\practicaredes\rentofortune\gameclient\source.cpp(468): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
           with
           [
               T=int
           ]
-c:\practicaredes\rentofortune\gameclient\source.cpp(795): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+c:\practicaredes\rentofortune\gameclient\source.cpp(734): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+          with
+          [
+              T=int
+          ]
+c:\practicaredes\rentofortune\gameclient\source.cpp(762): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+          with
+          [
+              T=int
+          ]
+c:\practicaredes\rentofortune\gameclient\source.cpp(786): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+          with
+          [
+              T=int
+          ]
+c:\practicaredes\rentofortune\gameclient\source.cpp(810): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
           with
           [
               T=int

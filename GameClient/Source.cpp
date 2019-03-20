@@ -336,8 +336,8 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 				switch (auxId)
 				{
 				case 0:
-					Buyed[counteCasillasUsadas].setSize(sf::Vector2f(25, 25));
-					Buyed[counteCasillasUsadas].setOutlineThickness(5);
+					Buyed[counteCasillasUsadas].setSize(sf::Vector2f(15, 15));
+					Buyed[counteCasillasUsadas].setOutlineThickness(2);
 					Buyed[counteCasillasUsadas].setOutlineColor(sf::Color(0, 0, 0, 255));
 					for (int i = 0; i < 4; i++)
 					{
@@ -364,8 +364,8 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 					}
 					break;
 				case 1:
-					Buyed[counteCasillasUsadas].setSize(sf::Vector2f(25, 25));
-					Buyed[counteCasillasUsadas].setOutlineThickness(5);
+					Buyed[counteCasillasUsadas].setSize(sf::Vector2f(15, 15));
+					Buyed[counteCasillasUsadas].setOutlineThickness(2);
 					Buyed[counteCasillasUsadas].setOutlineColor(sf::Color(0, 0, 0, 255));
 					for (int i = 0; i < 4; i++)
 					{
@@ -392,8 +392,8 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 					}
 					break;
 				case 2:
-					Buyed[counteCasillasUsadas].setSize(sf::Vector2f(25, 25));
-					Buyed[counteCasillasUsadas].setOutlineThickness(5);
+					Buyed[counteCasillasUsadas].setSize(sf::Vector2f(15, 15));
+					Buyed[counteCasillasUsadas].setOutlineThickness(2);
 					Buyed[counteCasillasUsadas].setOutlineColor(sf::Color(0, 0, 0, 255));
 					for (int i = 0; i < 4; i++)
 					{
@@ -420,8 +420,8 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 					}
 					break;
 				case 3:
-					Buyed[counteCasillasUsadas].setSize(sf::Vector2f(25, 25));
-					Buyed[counteCasillasUsadas].setOutlineThickness(5);
+					Buyed[counteCasillasUsadas].setSize(sf::Vector2f(15, 15));
+					Buyed[counteCasillasUsadas].setOutlineThickness(2);
 					Buyed[counteCasillasUsadas].setOutlineColor(sf::Color(0, 0, 0, 255));
 					for (int i = 0; i < 4; i++)
 					{
@@ -450,8 +450,23 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 				default:
 					break;
 				}
-				//POSICION
-				Buyed[counteCasillasUsadas].setPosition(players[auxId].position.x, players[auxId].position.y - 60);
+				//POSICION SEGUN CASILLA
+				if (players[auxId].casilla >= 11 && players[auxId].casilla <= 19)
+				{
+					Buyed[counteCasillasUsadas].setPosition(players[auxId].position.x + 45, players[auxId].position.y);
+				}
+				else if (players[auxId].casilla >= 21 && players[auxId].casilla <= 29)
+				{
+					Buyed[counteCasillasUsadas].setPosition(players[auxId].position.x, players[auxId].position.y + 45);
+				}
+				else if (players[auxId].casilla >= 31 && players[auxId].casilla <= 39)
+				{
+					Buyed[counteCasillasUsadas].setPosition(players[auxId].position.x - 48, players[auxId].position.y);
+				}
+				else
+				{
+					Buyed[counteCasillasUsadas].setPosition(players[auxId].position.x, players[auxId].position.y - 40);
+				}
 				counteCasillasUsadas++;
 				break;
 			case 3://NewTurn
