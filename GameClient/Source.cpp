@@ -177,7 +177,15 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 				{
 				case 0://Propiedad
 					packReceive >> owner;
-					if (owner == -1)
+					if (owner == -2)
+					{
+						packReceive >> auxId;
+						packReceive >> auxNewTurn;
+						players[auxId].isYourTurn = false;
+						players[auxNewTurn].isYourTurn = true;
+						std::cout << "ifhdwoeiuhfowihfewpihewpo" << std::endl;
+					}
+					else if (owner == -1)
 					{
 						packReceive >> auxPrecioPropiedad;
 						//pregunto si quiero comprar
@@ -282,7 +290,15 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 					break;
 				case 6://Company	
 					packReceive >> owner;
-					if (owner == -1)
+					if (owner == -2)
+					{
+						packReceive >> auxId;
+						packReceive >> auxNewTurn;
+						players[auxId].isYourTurn = false;
+						players[auxNewTurn].isYourTurn = true;
+						std::cout << "ifhdwoeiuhfowihfewpihewpo" << std::endl;
+					}
+					else if (owner == -1)
 					{
 						packReceive >> auxPrecioPropiedad;
 						//pregunto si quiero comprar

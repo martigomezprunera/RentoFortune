@@ -1,6 +1,6 @@
 ﻿  Source.cpp
 c:\practicaredes\rentofortune\gameserver\source.cpp(453): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-c:\practicaredes\rentofortune\gameserver\source.cpp(802): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+c:\practicaredes\rentofortune\gameserver\source.cpp(815): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
   Generating code
   1 of 272 functions ( 0.4%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
