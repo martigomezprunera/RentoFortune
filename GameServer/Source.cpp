@@ -205,7 +205,7 @@ void initializeBoard()
 			break;
 		case 5:
 			tablero[i].price = 200;
-			tablero[i].owner = 0;
+			tablero[i].owner = -1;
 			tablero[i].name = "Primera Estacion";
 			tablero[i].tipo = tipoCasilla::ESTACION;
 			tablero[i].priceToCharge = 50;
@@ -570,7 +570,7 @@ int main()
 										//RANDOM DICES
 										dice1 = rand() % 6 + 1;
 										dice2 = rand() % 6 + 1;
-										resultDices = 2;// dice1 + dice2;// dice1 + dice2;
+										resultDices = dice1 + dice2;// dice1 + dice2;
 										//casillasTotales = resultDices / 10;
 										players[indexTurn].casilla += resultDices;
 										if (players[indexTurn].casilla > 39)
@@ -757,7 +757,8 @@ int main()
 										//RellenamosSend
 										packSend.clear();
 										packSend << Ordenes::UpdateMoney;										
-										packSend << players[indexTurn].money;										
+										packSend << players[indexTurn].money;	
+										packSend << 0;
 										std::cout << "Player decide buy House" << std::endl;
 										//EntireRound = 0;
 									}	
@@ -784,7 +785,6 @@ int main()
 										packSend << Ordenes::RoundMoney;
 										packSend << players[indexTurn].money;
 										packSend << indexTurn;
-										std::cout << "Player decide buy House" << std::endl;
 										//EntireRound = 0;
 									}
 									else
@@ -798,7 +798,7 @@ int main()
 									}
 									haveToSend = true; 
 									break;
-								case 4:
+								case 4://DecideConstruct
 									packReceive >> indexTurn;
 									packReceive >> auxPlayerBuy;
 									std::cout << "playerBuy: " << auxPlayerBuy << std::endl;
@@ -814,6 +814,7 @@ int main()
 										packSend.clear();
 										packSend << Ordenes::UpdateMoney;
 										packSend << players[indexTurn].money;
+										packSend << tablero[players[indexTurn].casilla].numCasas;
 										std::cout << "Player decide buy House" << std::endl;
 										//EntireRound = 0;
 									}

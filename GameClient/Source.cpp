@@ -81,6 +81,17 @@ sf::Text turnsInJail;
 //RectanglesBuyed
 sf::RectangleShape Buyed[40];
 
+//STRUCT TEXTOS
+struct HouseBuyed
+{
+	int casilla;
+	int numHouse = 0;
+	sf::Text numHouseText;
+	sf::RectangleShape Buyed;
+};
+HouseBuyed buyedHouse[40];
+
+
 //OVERCHARGED FUNCTIONS (PLAYER INFO)
 sf::Packet& operator <<(sf::Packet& packet, const PlayerInfo& playerInfo)
 {
@@ -99,7 +110,13 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 {
 	sf::Packet packReceive;
 	int order;
+	//FONT
+	sf::Font fontCourbd;
 
+	if (!fontCourbd.loadFromFile("courbd.ttf"))
+	{
+		std::cout << "Can't load the font file" << std::endl;
+	}
 	//VARIABLES SIMPLES
 	PlayerInfo auxPlayer;
 	std::string auxName;
@@ -108,6 +125,7 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 	int auxPositionY;
 	int auxMoney;
 	int auxMoney2;
+	int auxNumCasas;
 	bool auxIsYourTurn;
 	int auxId;
 	int auxCasilla;
@@ -363,6 +381,7 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 				break;
 			case 2://Actualizar dinero
 				packReceive >> auxMoney;
+				packReceive >> auxNumCasas;
 				packReceive >> auxId;
 				packReceive >> auxNewTurn;				
 				//Update dinero
@@ -370,15 +389,26 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 				players[auxId].isYourTurn = false;
 				players[auxNewTurn].isYourTurn = true;
 				//Update text
+				buyedHouse[counteCasillasUsadas].casilla = players[auxId].casilla;
 				playerMoney[auxId].setString(std::to_string(players[auxId].money).append("$"));
-
+				buyedHouse[counteCasillasUsadas].numHouseText = { std::to_string(buyedHouse[counteCasillasUsadas].numHouse),fontCourbd,14 };
+				if (auxNumCasas > 0)
+				{
+					for (int i = 0; i < 40; i++)
+					{
+						if (buyedHouse[i].casilla == players[auxId].casilla)
+						{
+							buyedHouse[i].numHouseText.setString(std::to_string(auxNumCasas));
+						}
+					}
+				}
 				//MARCAR DE QUIEN ES LA CASILLA
 				switch (auxId)
 				{
 				case 0:
-					Buyed[counteCasillasUsadas].setSize(sf::Vector2f(15, 15));
-					Buyed[counteCasillasUsadas].setOutlineThickness(2);
-					Buyed[counteCasillasUsadas].setOutlineColor(sf::Color(0, 0, 0, 255));
+					buyedHouse[counteCasillasUsadas].Buyed.setSize(sf::Vector2f(15, 15));					
+					buyedHouse[counteCasillasUsadas].Buyed.setOutlineThickness(2);
+					buyedHouse[counteCasillasUsadas].Buyed.setOutlineColor(sf::Color(0, 0, 0, 255));
 					for (int i = 0; i < 4; i++)
 					{
 						if (auxId == JugadorColor[i].indexPlayer)
@@ -386,16 +416,16 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 							switch (JugadorColor[i].color)
 							{
 							case 0:
-								Buyed[counteCasillasUsadas].setFillColor(sf::Color(255, 0, 0));
+								buyedHouse[counteCasillasUsadas].Buyed.setFillColor(sf::Color(255, 0, 0));
 								break;
 							case 1:
-								Buyed[counteCasillasUsadas].setFillColor(sf::Color(0, 255, 0));
+								buyedHouse[counteCasillasUsadas].Buyed.setFillColor(sf::Color(0, 255, 0));
 								break;
 							case 2:
-								Buyed[counteCasillasUsadas].setFillColor(sf::Color(0, 0, 255));
+								buyedHouse[counteCasillasUsadas].Buyed.setFillColor(sf::Color(0, 0, 255));
 								break;
 							case 3:
-								Buyed[counteCasillasUsadas].setFillColor(sf::Color(128, 128, 255));
+								buyedHouse[counteCasillasUsadas].Buyed.setFillColor(sf::Color(128, 128, 255));
 								break;
 							default:
 								break;
@@ -404,9 +434,9 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 					}
 					break;
 				case 1:
-					Buyed[counteCasillasUsadas].setSize(sf::Vector2f(15, 15));
-					Buyed[counteCasillasUsadas].setOutlineThickness(2);
-					Buyed[counteCasillasUsadas].setOutlineColor(sf::Color(0, 0, 0, 255));
+					buyedHouse[counteCasillasUsadas].Buyed.setSize(sf::Vector2f(15, 15));
+					buyedHouse[counteCasillasUsadas].Buyed.setOutlineThickness(2);
+					buyedHouse[counteCasillasUsadas].Buyed.setOutlineColor(sf::Color(0, 0, 0, 255));
 					for (int i = 0; i < 4; i++)
 					{
 						if (auxId == JugadorColor[i].indexPlayer)
@@ -414,16 +444,16 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 							switch (JugadorColor[i].color)
 							{
 							case 0:
-								Buyed[counteCasillasUsadas].setFillColor(sf::Color(255, 0, 0));
+								buyedHouse[counteCasillasUsadas].Buyed.setFillColor(sf::Color(255, 0, 0));
 								break;
 							case 1:
-								Buyed[counteCasillasUsadas].setFillColor(sf::Color(0, 255, 0));
+								buyedHouse[counteCasillasUsadas].Buyed.setFillColor(sf::Color(0, 255, 0));
 								break;
 							case 2:
-								Buyed[counteCasillasUsadas].setFillColor(sf::Color(0, 0, 255));
+								buyedHouse[counteCasillasUsadas].Buyed.setFillColor(sf::Color(0, 0, 255));
 								break;
 							case 3:
-								Buyed[counteCasillasUsadas].setFillColor(sf::Color(128, 128, 255));
+								buyedHouse[counteCasillasUsadas].Buyed.setFillColor(sf::Color(128, 128, 255));
 								break;
 							default:
 								break;
@@ -432,9 +462,9 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 					}
 					break;
 				case 2:
-					Buyed[counteCasillasUsadas].setSize(sf::Vector2f(15, 15));
-					Buyed[counteCasillasUsadas].setOutlineThickness(2);
-					Buyed[counteCasillasUsadas].setOutlineColor(sf::Color(0, 0, 0, 255));
+					buyedHouse[counteCasillasUsadas].Buyed.setSize(sf::Vector2f(15, 15));
+					buyedHouse[counteCasillasUsadas].Buyed.setOutlineThickness(2);
+					buyedHouse[counteCasillasUsadas].Buyed.setOutlineColor(sf::Color(0, 0, 0, 255));
 					for (int i = 0; i < 4; i++)
 					{
 						if (auxId == JugadorColor[i].indexPlayer)
@@ -442,16 +472,16 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 							switch (JugadorColor[i].color)
 							{
 							case 0:
-								Buyed[counteCasillasUsadas].setFillColor(sf::Color(255, 0, 0));
+								buyedHouse[counteCasillasUsadas].Buyed.setFillColor(sf::Color(255, 0, 0));
 								break;
 							case 1:
-								Buyed[counteCasillasUsadas].setFillColor(sf::Color(0, 255, 0));
+								buyedHouse[counteCasillasUsadas].Buyed.setFillColor(sf::Color(0, 255, 0));
 								break;
 							case 2:
-								Buyed[counteCasillasUsadas].setFillColor(sf::Color(0, 0, 255));
+								buyedHouse[counteCasillasUsadas].Buyed.setFillColor(sf::Color(0, 0, 255));
 								break;
 							case 3:
-								Buyed[counteCasillasUsadas].setFillColor(sf::Color(128, 128, 255));
+								buyedHouse[counteCasillasUsadas].Buyed.setFillColor(sf::Color(128, 128, 255));
 								break;
 							default:
 								break;
@@ -460,9 +490,9 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 					}
 					break;
 				case 3:
-					Buyed[counteCasillasUsadas].setSize(sf::Vector2f(15, 15));
-					Buyed[counteCasillasUsadas].setOutlineThickness(2);
-					Buyed[counteCasillasUsadas].setOutlineColor(sf::Color(0, 0, 0, 255));
+					buyedHouse[counteCasillasUsadas].Buyed.setSize(sf::Vector2f(15, 15));
+					buyedHouse[counteCasillasUsadas].Buyed.setOutlineThickness(2);
+					buyedHouse[counteCasillasUsadas].Buyed.setOutlineColor(sf::Color(0, 0, 0, 255));
 					for (int i = 0; i < 4; i++)
 					{
 						if (auxId == JugadorColor[i].indexPlayer)
@@ -470,16 +500,16 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 							switch (JugadorColor[i].color)
 							{
 							case 0:
-								Buyed[counteCasillasUsadas].setFillColor(sf::Color(255, 0, 0));
+								buyedHouse[counteCasillasUsadas].Buyed.setFillColor(sf::Color(255, 0, 0));
 								break;
 							case 1:
-								Buyed[counteCasillasUsadas].setFillColor(sf::Color(0, 255, 0));
+								buyedHouse[counteCasillasUsadas].Buyed.setFillColor(sf::Color(0, 255, 0));
 								break;
 							case 2:
-								Buyed[counteCasillasUsadas].setFillColor(sf::Color(0, 0, 255));
+								buyedHouse[counteCasillasUsadas].Buyed.setFillColor(sf::Color(0, 0, 255));
 								break;
 							case 3:
-								Buyed[counteCasillasUsadas].setFillColor(sf::Color(128, 128, 255));
+								buyedHouse[counteCasillasUsadas].Buyed.setFillColor(sf::Color(128, 128, 255));
 								break;
 							default:
 								break;
@@ -491,22 +521,29 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 					break;
 				}
 				//POSICION SEGUN CASILLA
-				if (players[auxId].casilla >= 11 && players[auxId].casilla <= 19)
-				{
-					Buyed[counteCasillasUsadas].setPosition(players[auxId].position.x + 45, players[auxId].position.y);
+				if (buyedHouse[counteCasillasUsadas].numHouse == 0) {
+					if (players[auxId].casilla >= 11 && players[auxId].casilla <= 19)
+					{
+						buyedHouse[counteCasillasUsadas].Buyed.setPosition(players[auxId].position.x + 45, players[auxId].position.y);
+						buyedHouse[counteCasillasUsadas].numHouseText.setPosition(players[auxId].position.x + 47, players[auxId].position.y);
+					}
+					else if (players[auxId].casilla >= 21 && players[auxId].casilla <= 29)
+					{
+						buyedHouse[counteCasillasUsadas].Buyed.setPosition(players[auxId].position.x, players[auxId].position.y + 45);
+						buyedHouse[counteCasillasUsadas].numHouseText.setPosition(players[auxId].position.x + 2, players[auxId].position.y + 45);
+					}
+					else if (players[auxId].casilla >= 31 && players[auxId].casilla <= 39)
+					{
+						buyedHouse[counteCasillasUsadas].Buyed.setPosition(players[auxId].position.x - 48, players[auxId].position.y);
+						buyedHouse[counteCasillasUsadas].numHouseText.setPosition(players[auxId].position.x - 46, players[auxId].position.y);
+					}
+					else
+					{
+						buyedHouse[counteCasillasUsadas].Buyed.setPosition(players[auxId].position.x, players[auxId].position.y - 40);
+						buyedHouse[counteCasillasUsadas].numHouseText.setPosition(players[auxId].position.x + 2, players[auxId].position.y - 40);
+					}
 				}
-				else if (players[auxId].casilla >= 21 && players[auxId].casilla <= 29)
-				{
-					Buyed[counteCasillasUsadas].setPosition(players[auxId].position.x, players[auxId].position.y + 45);
-				}
-				else if (players[auxId].casilla >= 31 && players[auxId].casilla <= 39)
-				{
-					Buyed[counteCasillasUsadas].setPosition(players[auxId].position.x - 48, players[auxId].position.y);
-				}
-				else
-				{
-					Buyed[counteCasillasUsadas].setPosition(players[auxId].position.x, players[auxId].position.y - 40);
-				}
+				
 				counteCasillasUsadas++;
 				break;
 			case 3://NewTurn
@@ -1016,6 +1053,7 @@ int main()
 									std::cout << "Player send " << indexPlayer << std::endl;
 								}
 								accion = Acciones::NONE;
+
 							}
 						}
 					}
@@ -1058,7 +1096,8 @@ int main()
 		//COSAS COMPRADAS
 		for (int i = 0; i < 40; i++)
 		{
-			window.draw(Buyed[i]);
+			window.draw(buyedHouse[i].Buyed);
+			window.draw(buyedHouse[i].numHouseText);
 		}
 
 		//BUTTON
