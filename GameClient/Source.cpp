@@ -79,17 +79,18 @@ sf::Vector2<int> mousePos;
 sf::Text turnsInJail;
 
 //RectanglesBuyed
-sf::RectangleShape Buyed[40];
+sf::RectangleShape Buyed[200];
 
 //STRUCT TEXTOS
 struct HouseBuyed
 {
+	int id=-1;
 	int casilla;
 	int numHouse = 0;
 	sf::Text numHouseText;
 	sf::RectangleShape Buyed;
 };
-HouseBuyed buyedHouse[40];
+HouseBuyed buyedHouse[200];
 
 
 //OVERCHARGED FUNCTIONS (PLAYER INFO)
@@ -134,6 +135,8 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 	int auxNewTurn;
 	int auxIdOwner;
 	int auxNumberTurnsToLose = 0;
+	int auxCounterDeleted;
+	int auxIdPlayersDeleted[4];
 
 	//RECIBIMOS LA INFORMACION DE TODOS LOS JUGADORES
 	status=sock->receive(packReceive);
@@ -522,6 +525,7 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 				}
 				//POSICION SEGUN CASILLA
 				if (buyedHouse[counteCasillasUsadas].numHouse == 0) {
+					buyedHouse[counteCasillasUsadas].id = auxId;
 					if (players[auxId].casilla >= 11 && players[auxId].casilla <= 19)
 					{
 						buyedHouse[counteCasillasUsadas].Buyed.setPosition(players[auxId].position.x + 45, players[auxId].position.y);
@@ -543,7 +547,6 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 						buyedHouse[counteCasillasUsadas].numHouseText.setPosition(players[auxId].position.x + 2, players[auxId].position.y - 40);
 					}
 				}
-				
 				counteCasillasUsadas++;
 				break;
 			case 3://NewTurn
@@ -576,12 +579,29 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 					accion = Acciones::NONE;
 				}
 				break;	
-			case 7:
+			case 7://Winner
 				packReceive >> winer;
 				auxName = "El ganador es :";
 				Winer.setString(auxName.append(players[winer].name));
 				std::cout << auxName.append(players[winer].name) << std::endl;;
 				accion = Acciones::GANADOR;
+				break;
+			case 8:
+				packReceive >> auxCounterDeleted;
+				std::cout << "AuxCounter: " << auxCounterDeleted << std::endl;
+				for (int i = 0; i < auxCounterDeleted; i++)
+				{
+					packReceive >> auxIdPlayersDeleted[i];
+					for (int j = 0; j < counteCasillasUsadas; j++)
+					{
+						if (buyedHouse[j].id == auxIdPlayersDeleted[i])
+						{
+							buyedHouse[j].Buyed.setScale(0, 0);
+							buyedHouse[j].numHouse = 0;
+							buyedHouse[j].numHouseText.setScale(0, 0);
+						}
+					}
+				}
 				break;
 			default:
 				break;
@@ -591,7 +611,6 @@ void RecepcionMensaje(sf::TcpSocket* sock)
 		packReceive.clear();
 	}
 }
-
 
 int main()
 {

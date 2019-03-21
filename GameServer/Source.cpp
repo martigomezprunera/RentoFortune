@@ -63,6 +63,10 @@ float casillasTotales;
 int RandomToCharge;
 int Tax;
 int EntireRound = 0;
+int counterDeletedPlayers = 0;
+int PlayerIdDeleted[4] = {-1,-1,-1,-1};
+int socksPlayers;
+int counterPlayersNoTurn = 4;
 
 //Lista para guardar los sockets
 std::list<sf::TcpSocket*> clients;
@@ -79,7 +83,8 @@ enum Ordenes
 	Charge,
 	RoundMoney,
 	WantGetOut,
-	Winner
+	Winner,
+	DeletePlayer
 };
 
 //OVERCHARGED FUNCTIONS (PLAYER INFO)
@@ -448,11 +453,19 @@ int calculateCompanyPriceToCharge(int sumDices)
 		return (sumDices * 4);
 }
 
+//SOCKET ASOCIADO A JUGADOR
+struct sockPlayer
+{
+	sf::TcpSocket *sockPlayer;
+	int id;
+};
+sockPlayer socketsPlayer[4];
+
 int main()
 {
 	//RANDOM
 	srand(time(NULL));
-
+	bool isDeleted[4] = {false,false ,false ,false };
 	//VARIABLES CONEXION
 	sf::TcpSocket sock;
 	sf::TcpSocket::Status status;
@@ -534,10 +547,15 @@ int main()
 
 								switch (order)
 								{
-								case 0://CreatePlayer///////									
+								case 0://CreatePlayer///////		
 									packReceive >> playerInfo.name;
 									playerInfo.id = counterPlayer;
-									playerInfo.id = counterPlayer;
+									//playerInfo.id = counterPlayer;
+
+									//ASOCIAMOS EL SOCKET CON EL JUGADOR
+									socketsPlayer[counterPlayer].sockPlayer = clients.back();
+									socketsPlayer[counterPlayer].id = playerInfo.id;
+
 									counterPlayer++;
 									//AÑADIMOS JUGADOR AL VECTOR
 									mtx.lock();
@@ -570,7 +588,7 @@ int main()
 										//RANDOM DICES
 										dice1 = rand() % 6 + 1;
 										dice2 = rand() % 6 + 1;
-										resultDices = dice1 + dice2;// dice1 + dice2;
+										resultDices = dice1 + dice2;
 										//casillasTotales = resultDices / 10;
 										players[indexTurn].casilla += resultDices;
 										if (players[indexTurn].casilla > 39)
@@ -624,7 +642,7 @@ int main()
 												packSend << -2;
 												finishTurn = true;
 											}
-											else if ((tablero[players[indexTurn].casilla].owner == -1) && (players[indexTurn].money > tablero[players[indexTurn].casilla].price))//Casilla sin dueño
+											else if ((tablero[players[indexTurn].casilla].owner == -1) && (players[indexTurn].money >= tablero[players[indexTurn].casilla].price))//Casilla sin dueño
 											{
 												packSend << tablero[players[indexTurn].casilla].owner;
 												//Se envia una pregunta para comprar
@@ -849,7 +867,7 @@ int main()
 											controlWin = 5;
 											break;
 										}
-									} while (players[indexTurn].money < 1);												
+									} while (players[indexTurn].money < 0);												
 									players[indexTurn].isYourTurn = true;									
 									packSend << indexTurn;
 									finishTurn = false;								
@@ -904,6 +922,48 @@ int main()
 										}
 									}
 									EntireRound = 0;
+								}
+
+								for (int i = 0; i < players.size(); i++)
+								{
+									if (players[i].money < 0)
+									{
+										if (isDeleted[i]==false)
+										{
+											PlayerIdDeleted[counterDeletedPlayers] = players[i].id;
+											counterDeletedPlayers++;
+											isDeleted[i] = true;
+										}
+									}
+								}
+
+								if (counterDeletedPlayers > 0)
+								{
+									packSend.clear();
+									packSend << Ordenes::DeletePlayer;
+									packSend << counterDeletedPlayers;
+									for (int i = 0; i < counterDeletedPlayers; i++)
+									{
+										packSend << PlayerIdDeleted[i];									
+									}
+									for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
+									{
+										sf::TcpSocket& client = **it;
+										status = client.send(packSend);
+										if (status == sf::Socket::Done)
+										{
+											std::cout << "Paquete Enviado " << std::endl;
+										}
+									}
+									for (int i = 0; i < 40; i++)
+									{
+										if ((tablero[i].owner == PlayerIdDeleted[0]) ||(tablero[i].owner == PlayerIdDeleted[1])||(tablero[i].owner == PlayerIdDeleted[2]))
+										{
+											tablero[i].owner = -1;
+											tablero[i].numCasas = 0;
+										}
+									}
+									counterDeletedPlayers = 0;
 								}
 
 								//NUMERO DE JUGADORES EN PARTIDA
@@ -987,7 +1047,17 @@ int main()
 							}
 							else if (status == sf::Socket::Disconnected)
 							{
+								//NO VUELVE A TIRAR
+								for (int i = 0; i < counterPlayersNoTurn; i++)
+								{
+									if (socketsPlayer[i].sockPlayer == &client)
+									{
+										players[socketsPlayer[i].id].money = -10;
+									}
+								}
+								counterPlayersNoTurn--;
 								selector.remove(client);
+
 								std::cout << "Elimino el socket que se ha desconectado\n";
 							}
 							else
